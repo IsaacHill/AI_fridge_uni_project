@@ -1,0 +1,23 @@
+Performered on every choice process
+    empty state = E
+    depth is weeks passed;
+    repeat
+        search (E) at depth 0 using Monte Carlo search (14/10 slides page 23-27)
+    until Timeout ( Timeout is how many times we want to run this, so 5 minutes for hte first state, otherwise 1 minute)
+    return the action that has the best probabiltity, using Monte Carlo
+
+WHATS THE DEAL WITH SEARCH(E)?!?!?!
+    if gamma^d < theshhold value that we will decide to limit the depth we search
+        return 0; (Important for <POINT A>)
+    if terminal(s) (we have reached the final week)
+        return R(s) which is the reward at this state from the previous state (Important for <POINT A>)                 [[[What is the reward for the terminal state]]] = 0
+    if there are actions from the state that have not been tried
+        grab an action randomly that we have not tried for this state
+        estimate and expand s with a || gives a estimated reward for the action and consider the state as "tried"
+        return (We have finished here, start the loop at the top again) (Important for <POINT B>
+    else
+        a = PolicyUCT(s) which means we have decided on an action to expand
+        (s', R) = simulation(s, a) which means we go through the random chance to decide on an action to try THIS TIME AROUND
+        q = R + gamma * search(s', d + 1) <POINT B> = The search can return a null, must try catch to find that out.
+        UpdateValue(s,a,q) updates 3 values to make the decision making more precise. Slide 27
+        return (We have finished here, start the loop at the top again)
