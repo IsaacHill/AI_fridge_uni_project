@@ -15,9 +15,9 @@ public class Link {
     private int numDone;
     private List<State> toStates;
 
-    public Link(State fromState, List<Integer> action) throws IOException {
-        if (fromState == null) throw new IOException("fromState was null");
-        if (action == null) throw new IOException("action was null");
+    public Link(State fromState, List<Integer> action) throws NullPointerException {
+        if (fromState == null) throw new NullPointerException("fromState was null");
+        if (action == null) throw new NullPointerException("action was null");
         try {
             this.fromState = fromState;
             this.action = cloneAction(action);
