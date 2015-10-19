@@ -1,11 +1,10 @@
 package solver;
 
-import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.util.List;
-
 import problem.ProblemSpec;
 import problem.Simulator;
+
+import java.lang.reflect.Constructor;
+import java.util.List;
 
 public class Runner {
 	/** The default file to read the user model from. */
@@ -31,6 +30,7 @@ public class Runner {
 	public static boolean RECREATE_SOLVER = true;
 
 	public static void main(String[] args) throws Exception {
+
 		parseCommandLine(args);
 		Class<?> clazz = Class.forName(solverName);
 		Constructor<?> ctor = clazz.getConstructor(ProblemSpec.class);
@@ -39,7 +39,6 @@ public class Runner {
 		
 		double totalPenalty = 0;
 		double totalMaxPenalty = 0;
-		
 		Simulator simulator = new Simulator(spec);
 		OrderingAgent solver = null;
 		if (!RECREATE_SOLVER) {

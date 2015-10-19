@@ -132,6 +132,54 @@ public class MySolver implements OrderingAgent {
 
 	}
 
+	public Set<List<Integer>> createActions() {
+		Set<List<Integer>> allActions = new HashSet<>();
+		List<Integer> initial = new ArrayList<Integer>
+				(spec.getFridge().getMaxTypes());
+		actionsHelper(allActions, 0, initial);
+		System.out.println(allActions.toString());
+		return allActions;
+	}
+
+	/**
+	 * Recurisve function to help createActions() find all possible actions
+	 * @param allActions
+	 * @param ordered
+	 * @param current
+	 */
+	private void actionsHelper(Set<List<Integer>> allActions, int ordered,
+						  List<Integer> current) {
+		int total = 0;
+
+		if (ordered == spec.getFridge().getMaxPurchase()) {
+			return;
+		}
+		//checks action is not already added to allActions
+		if (allActions.contains(current)) {
+			return;
+		}
+		//checks that fridge is under capacity
+		for (int type: current) {
+			total += type;
+			if (total > spec.getFridge().getCapacity()) {
+				return;
+			}
+		}
+		allActions.add(current);
+		for (int type: current) {
+			if (type > spec.getFridge().getMaxItemsPerType()) {
+				continue;
+			}
+			type++;
+			List<Integer> newCurrent = new ArrayList<>(current);
+			actionsHelper(allActions, ordered+1, newCurrent);
+			type--;
+
+
+		}
+
+	}
+/**
 	public HashMap<List<Integer>, Double> createActions() {
 		Set<List<Integer>> toCheck = new HashSet<>();
 		toCheck.add(new ArrayList<>(spec.getFridge().getMaxTypes()));
@@ -145,5 +193,5 @@ public class MySolver implements OrderingAgent {
 		}
 		return null;
 
-	}
+	} **/
 }
