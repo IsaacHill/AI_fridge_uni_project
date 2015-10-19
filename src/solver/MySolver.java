@@ -13,6 +13,7 @@ public class MySolver implements OrderingAgent {
 	//private List<Integer> action = new ArrayList<>();
 	private int weeksPassed;
 	private Set<List<Integer>> allActions;
+	private Simulator mySim;
 	
 	public MySolver(ProblemSpec spec) throws IOException {
 	    this.spec = spec;
@@ -20,19 +21,23 @@ public class MySolver implements OrderingAgent {
         probabilities = spec.getProbabilities();
 		weeksPassed = 0;
 		allActions = createActions();
+		mySim = new Simulator(spec);
 	}
 
 	public void doOfflineComputation() {
 	    // TODO Write your own code here.
+		doOnlineComputation();
 	}
 
 	public void doOnlineComputation() {
 		// TODO Look at Pseudo
 		double current = System.currentTimeMillis();
-
+		createActions();
+		List<Integer> initial = new ArrayList<>(spec.getFridge().getMaxTypes());
+		State first = new State(initial, allActions, spec);
 		double start = System.currentTimeMillis();
 		while (current < start+50000) {
-
+			MCST(first);
 		}
 	}
 
@@ -76,7 +81,7 @@ public class MySolver implements OrderingAgent {
 		return 0;
 	}
 	// TODO: add an action
-	private List<Integer> MCST(State state , int ammount) {
+	private List<Integer> MCST(State state) {
 		double startTime = System.currentTimeMillis();
 		while (!outOfTime(startTime)) {
 			search(state, 0);
@@ -99,7 +104,21 @@ public class MySolver implements OrderingAgent {
 			state.updateLink(new Link(state, action), estimate(state, action));
 			return -1.0;
 		} else {
-			//state.
+			Link action = state.bestAction();
+			State newState = simulateAction(state, action.getAction());
+			Double searched = search(newState, depth + 1);
+			Double q = null;
+			if (searched < 0) {
+				q = Double.valueOf(state.getReward());
+			} else {
+				q = state.getReward() + spec.getDiscountFactor() * searched;
+			}
+			updateValue(state, action, q);
+			action.addNextState(newState);
+
+
+
+
 		}
 		//dom is an idiot tho...
 		return 0;
@@ -186,7 +205,49 @@ public class MySolver implements OrderingAgent {
 	}
 
 	private double estimate(State state, List<Integer> action) {
-		return -1.0;
+		return estimateHelper(state, action, 0);
+	}
+
+	private Double estimateHelper(State state, List<Integer> action, int depth) {
+		State nextState = simulateAction(state, action);
+		if (Math.pow(spec.getDiscountFactor(), depth) < 0.7 || terminal(depth)) {
+			return Double.valueOf(state.getReward());
+		} else {
+			List<Integer> nextAction = state.getUnvisted().peek();
+			//TODO: 13% randomness
+			//TODO : estimate fuck you
+			return Double.valueOf(state.getReward()) + spec.getDiscountFactor()*estimateHelper(nextState, nextAction, depth+1);
+		}
+	}
+
+	private State simulateAction(State currentState, List<Integer> action) {
+		List<Integer> newState = new ArrayList<>();
+		for (int i = 0; i < currentState.getState().size(); i++) {
+			newState.add(currentState.getState().get(i)+action.get(i));
+		}
+		//State psuedoState = new State(newState, allActions, spec);
+		List<Integer> want = mySim.sampleUserWants(newState);
+		List<Integer> nextState = new ArrayList<>();
+		int penalty = 0;
+		for (int i = 0; i < newState.size(); i++) {
+			if (newState.get(i) >= want.get(i)) {
+				nextState.add(newState.get(i)-want.get(i));
+			} else {
+				nextState.add(0);
+				penalty += (want.get(i)-newState.get(i));
+			}
+		}
+		State simulatedState = new State(nextState, allActions, spec);
+		simulatedState.setReward(penalty);
+		return simulatedState;
+
+	}
+
+	private void updateValue(State state, Link action, Double q) {
+		Double newReward = (state.linkReward(action)*action.getTimesTaken()+q)/action.getTimesTaken()+1;
+		state.updateLink(action, newReward);
+		state.visit();
+		action.actionTaken();
 	}
 
 }

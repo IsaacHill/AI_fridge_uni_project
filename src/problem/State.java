@@ -90,6 +90,9 @@ public class State {
      */
     public void updateLink(Link link, Double reward) { actions.put(link, reward); }
 
+    public Double linkReward(Link link) {
+        return actions.get(link);
+    }
     /**
      * Takes a list of actions, filters out all actions that cannot be applied to the current state and
      * turns all the remaining actions into Links, adding them to the list of actions for this state
