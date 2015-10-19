@@ -11,11 +11,11 @@ import java.util.*;
  */
 public class State {
     // Global Variables
-    private List<Integer> state;
-    private int timesVisited;
-    private int reward;
-    private Map<Link, Double> actions;
-    private ProblemSpec spec;
+    private List<Integer> state;        // The current state of the fridge
+    private int timesVisited;           // The amount of times this state has been visited
+    private int reward;                 // The last reward gotten from reaching this state
+    private Map<Link, Double> actions;  // A mapping of each action that can be taken to estimate of failure
+    private ProblemSpec spec;           // The problem spec, holding all information of probability and fridge
     //private Double totalFail;
 
     /**
