@@ -80,6 +80,7 @@ public class MySolver implements OrderingAgent {
 			return state.getReward();
 		}
 		//if ()
+		//dom is an idiot tho
 		return 0;
 	}
 
