@@ -5,8 +5,12 @@ import java.util.*;
 
 /**
  * Created by Dom on 19/10/2015.
+ *
+ * The state class represents a state in a graph, a list of items currently stocked in the
+ * fridge before each purchase action.
  */
 public class State {
+    // Global Variables
     private List<Integer> state;
     private int timesVisited;
     private int reward;
@@ -14,8 +18,21 @@ public class State {
     private ProblemSpec spec;
     //private Double totalFail;
 
-
-    public State(List<Integer> state, Set<List<Integer>> actions, ProblemSpec spec) throws NullPointerException {
+    /**
+     * Constructor method for the State class.
+     * @param state
+     *          The state of the fridge, a list of items currently in the fridge
+     * @param actions
+     *          The list of every action that can be taken before reduction
+     * @param spec
+     *          The problem spec, holding all the information about the fridge
+     * @throws NullPointerException
+     *          When any input is null
+     * @throws IllegalArgumentException
+     *          If there was a mismatch with classes
+     */
+    public State(List<Integer> state, Set<List<Integer>> actions, ProblemSpec spec)
+            throws NullPointerException, IllegalArgumentException {
         if (state == null) throw new NullPointerException("state was null");
         if (actions == null) throw new NullPointerException("actions was null");
         for (List<Integer> action : actions) if (action == null)
@@ -34,29 +51,75 @@ public class State {
         }
     }
 
+    /**
+     * A method to return the state of the fridge
+     * @return the state of the fridge
+     */
     public List<Integer> getState() { return state; }
 
+    /**
+     * Increments the amount of times this node has been reached during the search
+     */
     public void visit() { timesVisited++; }
 
+    /**
+     * A method to return the amount of times this node has been reached
+     * @return the amount of times this node has been reached
+     */
     public int getTimesVisited() { return timesVisited; }
 
+    /**
+     * Sets the most recent reward (failures) received for reaching this node
+     * @param reward
+     *          The amount of failures received
+     */
     public void setReward(int reward) { this.reward = reward; }
 
+    /**
+     * A method to return the most recently received reward for reaching this node
+     * @return the reward for reaching this node
+     */
     public int getReward() { return reward; }
 
-    public void updateLink(Link link, Double chance) { actions.put(link, chance); }
+    /**
+     * A method to update a link in the list of potential actions
+     * @param link
+     *          The link that is being updated
+     * @param reward
+     *          The new estimated reward for taking this path
+     */
+    public void updateLink(Link link, Double reward) { actions.put(link, reward); }
 
-    private void generateLinks(Set<List<Integer>> actions) throws NullPointerException {
+    /**
+     * Takes a list of actions, filters out all actions that cannot be applied to the current state and
+     * turns all the remaining actions into Links, adding them to the list of actions for this state
+     * @param actions
+     *          The total list of actions any state might be able to perform
+     * @throws NullPointerException
+     *          If any input is null
+     * @throws IllegalArgumentException
+     *          If any class is mismatched
+     */
+    private void generateLinks(Set<List<Integer>> actions) throws NullPointerException, IllegalArgumentException {
         for (List<Integer> action : actions) {
+            // If the action can be performed, make it into a link and add it to the list of actions
             if (actionApplies(action)) {
                 this.actions.put(new Link(this, action), 0.0);
             }
         }
     }
 
+    /**
+     * This method takes an action from the list and sees if this state can perform it
+     * @param action
+     *          An actions from the list of all possible actions
+     * @return true if the action can be performed by this state, otherwise false
+     */
     private Boolean actionApplies(List<Integer> action) {
         Fridge fridge = spec.getFridge();
         int totalItems = 0;
+        // Check if the action raises an item to over the max that can be eaten
+        // Check if the action raises total amount of items to over the fridge capacity
         for (int i = 0; i < action.size()-1; i++) {
             if (action.get(i)+state.get(i) > fridge.getMaxItemsPerType()) return false;
             totalItems += (action.get(i) + state.get(i));
