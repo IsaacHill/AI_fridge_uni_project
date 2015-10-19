@@ -10,16 +10,19 @@ import java.util.*;
 
 public class MySolver implements OrderingAgent {
 
-	private ProblemSpec spec = new ProblemSpec();
+	private ProblemSpec spec;
 	private Fridge fridge;
     private List<Matrix> probabilities;
-	private List<Integer> action = new ArrayList<>();
-	private int weeksPassed = 0;
+	//private List<Integer> action = new ArrayList<>();
+	private int weeksPassed;
+	private Set<List<Integer>> allActions;
 	
 	public MySolver(ProblemSpec spec) throws IOException {
 	    this.spec = spec;
 		fridge = spec.getFridge();
         probabilities = spec.getProbabilities();
+		weeksPassed = 0;
+		allActions = createActions();
 	}
 
 	public void doOfflineComputation() {
@@ -28,18 +31,18 @@ public class MySolver implements OrderingAgent {
 
 	public void doOnlineComputation() {
 		// TODO Look at Pseudo
-		//MCTS(object o);
 		double current = System.currentTimeMillis();
+
 		double start = System.currentTimeMillis();
 		while (current < start+50000) {
 
 		}
 	}
-/*
-	private object MCTS(object o) {
-		return o;
+
+	private List<> MCTS() {
+
 	}
-*/
+
 	public List<Integer> generateShoppingList(List<Integer> inventory,
 	        int numWeeksLeft) {
 		// Example code that buys one of each item type.
@@ -85,7 +88,7 @@ public class MySolver implements OrderingAgent {
 			Search(state, 0);
 		}
 		// TODO: make a getter and setter - shots not (isaac)
-		return action;
+		return null/*action*/;
 	}
 
 	private double Search(State state, int depth) {
@@ -93,7 +96,7 @@ public class MySolver implements OrderingAgent {
 		if (Math.pow(spec.getDiscountFactor(), depth) < 0.1) {
 			return -1.0;
 		}
-		if (Terminal(depth)) {
+		if (terminal(depth)) {
 			return state.getReward();
 		}
 		//if ()
@@ -101,7 +104,7 @@ public class MySolver implements OrderingAgent {
 		return 0;
 	}
 
-	private boolean Terminal(int depth) {
+	private boolean terminal(int depth) {
 		if (depth+weeksPassed >= spec.getNumWeeks()) {
 			return true;
 		} else {
@@ -116,6 +119,7 @@ public class MySolver implements OrderingAgent {
 		return false;
 	}
 
+	/*
 	private State piUCT(State state) {
 		// page 23 of 14/10 slides
 
@@ -131,6 +135,7 @@ public class MySolver implements OrderingAgent {
 		return currentMaxState;
 
 	}
+	*/
 
 	public Set<List<Integer>> createActions() {
 		Set<List<Integer>> allActions = new HashSet<>();
@@ -166,7 +171,7 @@ public class MySolver implements OrderingAgent {
 			}
 		}
 		allActions.add(current);
-		for (int i = 0; i < spec.getFridge().getMaxTypes()) {
+		for (int i = 0; i < spec.getFridge().getMaxTypes(); i++) {
 			if (current.get(i) >  spec.getFridge().getMaxItemsPerType()) {
 				continue;
 			}

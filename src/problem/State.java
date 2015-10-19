@@ -104,7 +104,7 @@ public class State {
         for (List<Integer> action : actions) {
             // If the action can be performed, make it into a link and add it to the list of actions
             if (actionApplies(action)) {
-                this.actions.put(new Link(this, action), 0.0);
+                this.actions.put(new Link(this, action), -1.0);
             }
         }
     }
