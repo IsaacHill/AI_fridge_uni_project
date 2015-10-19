@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MySolver implements OrderingAgent {
-	
+
 	private ProblemSpec spec = new ProblemSpec();
 	private Fridge fridge;
     private List<Matrix> probabilities;
@@ -22,11 +22,25 @@ public class MySolver implements OrderingAgent {
 		fridge = spec.getFridge();
         probabilities = spec.getProbabilities();
 	}
-	
+
 	public void doOfflineComputation() {
 	    // TODO Write your own code here.
 	}
-	
+
+	public void doOnlineComputation() {
+		// TODO Look at Pseudo
+		//MCTS(object o);
+		double current = System.currentTimeMillis();
+		double start = System.currentTimeMillis();
+		while (current < start+50000) {
+
+		}
+	}
+/*
+	private object MCTS(object o) {
+		return o;
+	}
+*/
 	public List<Integer> generateShoppingList(List<Integer> inventory,
 	        int numWeeksLeft) {
 		// Example code that buys one of each item type.
@@ -36,10 +50,10 @@ public class MySolver implements OrderingAgent {
 		for (int i : inventory) {
 			totalItems += i;
 		}
-		
+
 		int totalShopping = 0;
 		for (int i = 0; i < fridge.getMaxTypes(); i++) {
-			if (totalItems >= fridge.getCapacity() || 
+			if (totalItems >= fridge.getCapacity() ||
 			        totalShopping >= fridge.getMaxPurchase()) {
 				shopping.add(0);
 			} else {
@@ -50,6 +64,10 @@ public class MySolver implements OrderingAgent {
 		}
 		return shopping;
 	}
+
+
+
+
 	/*
 	 * Just doing some maths
 	 */
