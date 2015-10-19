@@ -151,7 +151,7 @@ public class MySolver implements OrderingAgent {
 						  List<Integer> current) {
 		int total = 0;
 
-		if (ordered == spec.getFridge().getMaxPurchase()) {
+		if (ordered > spec.getFridge().getMaxPurchase()) {
 			return;
 		}
 		//checks action is not already added to allActions
@@ -166,19 +166,24 @@ public class MySolver implements OrderingAgent {
 			}
 		}
 		allActions.add(current);
-		for (int type: current) {
-			if (type > spec.getFridge().getMaxItemsPerType()) {
+		for (int i = 0; i < spec.getFridge().getMaxTypes()) {
+			if (current.get(i) >  spec.getFridge().getMaxItemsPerType()) {
 				continue;
 			}
-			type++;
-			List<Integer> newCurrent = new ArrayList<>(current);
-			actionsHelper(allActions, ordered+1, newCurrent);
-			type--;
+			List<Integer> newCurrent = new LinkedList<>(current);
+			newCurrent.remove(i);
+			newCurrent.add(i, current.get(i) + 1);
+			actionsHelper(allActions, ordered + 1, newCurrent);
 
 
 		}
 
+
+
 	}
+
+
+
 /**
 	public HashMap<List<Integer>, Double> createActions() {
 		Set<List<Integer>> toCheck = new HashSet<>();
