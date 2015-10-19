@@ -34,14 +34,17 @@ public class MySolver implements OrderingAgent {
 		double current = System.currentTimeMillis();
 		createActions();
 		List<Integer> initial = new ArrayList<>(spec.getFridge().getMaxTypes());
+		for (int i = 0; i < spec.getFridge().getMaxTypes(); i++) initial.add(i, 0);
 		State first = new State(initial, allActions, spec);
 		double start = System.currentTimeMillis();
 		while (current < start+50000) {
 			MCST(first);
 		}
+		generateShoppingList()
+
 	}
 
-
+		//TODO look at this more tomorrow god damn it im tired
 	public List<Integer> generateShoppingList(List<Integer> inventory,
 	        int numWeeksLeft) {
 		// Example code that buys one of each item type.
@@ -98,8 +101,10 @@ public class MySolver implements OrderingAgent {
 		if (terminal(depth)) {
 			return state.getReward();
 		}
+	//	System.out.println(state.getUnvisted().size());
 		if (!state.getUnvisted().isEmpty()) {
 			List<Integer> action = state.getUnvisted().pop();
+		//	System.out.println(state.getUnvisted().size());
 			//TODO : estimate fuck you
 			state.updateLink(new Link(state, action), estimate(state, action));
 			return -1.0;
@@ -161,6 +166,9 @@ public class MySolver implements OrderingAgent {
 		Set<List<Integer>> allActions = new HashSet<>();
 		List<Integer> initial = new ArrayList<Integer>
 				(spec.getFridge().getMaxTypes());
+		for (int i = 0; i < spec.getFridge().getMaxTypes(); i++) {
+			initial.add(i, 0);
+		}
 		actionsHelper(allActions, 0, initial);
 		System.out.println(allActions.toString());
 		return allActions;
@@ -213,6 +221,7 @@ public class MySolver implements OrderingAgent {
 		if (Math.pow(spec.getDiscountFactor(), depth) < 0.7 || terminal(depth)) {
 			return Double.valueOf(state.getReward());
 		} else {
+			System.out.println(state.getUnvisted().size() + "---" + depth);
 			List<Integer> nextAction = state.getUnvisted().peek();
 			//TODO: 13% randomness
 			//TODO : estimate fuck you

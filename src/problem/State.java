@@ -42,9 +42,10 @@ public class State {
             this.state = state;
             timesVisited = 0;
             reward = 0;
-            this.actions = new HashMap<>();
-            generateLinks(actions);
             this.spec = spec;
+            this.actions = new HashMap<>();
+            this.unvisted = new Stack<>();
+            generateLinks(actions);
             //totalFail = 0.0;
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("There was a mismatch with one of your classes");
