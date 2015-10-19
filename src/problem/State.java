@@ -44,6 +44,8 @@ public class State {
 
     public int getReward() { return reward; }
 
+    public void updateLink(Link link, Double chance) { actions.put(link, chance); }
+
     private void generateLinks(Set<List<Integer>> actions) throws NullPointerException {
         for (List<Integer> action : actions) {
             if (actionApplies(action)) {
