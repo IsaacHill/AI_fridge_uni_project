@@ -54,7 +54,7 @@ public class State {
         int maxType = spec.getFridge().getMaxItemsPerType();
         List<Integer> current = getState();
         for (Integer type : current) {
-
+            //fwaur
         }
 
 
