@@ -15,6 +15,7 @@ public class State {
     private int reward = 0;
     private ProblemSpec spec;
     private Map<List<Integer>,Double> actions = null;
+    private int timesVisited;
 
     public State(List<Integer> state, ProblemSpec spec) throws IOException {
         this.state = state;

@@ -98,4 +98,20 @@ public class MySolver implements OrderingAgent {
 		}
 		return false;
 	}
+
+	private State piUCT(State state) {
+		// page 23 of 14/10 slides
+
+		// for each action, calculate argmax
+
+		double currentMax = 0;
+		State currentMaxState = null;
+
+		for (List<Integer> action : state.createActions().keySet()) {
+			// calculate pi, update current max state
+		}
+
+		return currentMaxState;
+
+	}
 }
