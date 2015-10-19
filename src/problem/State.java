@@ -1,6 +1,5 @@
 package problem;
 
-import java.io.IOException;
 import java.util.*;
 
 /**
@@ -14,6 +13,7 @@ public class State {
     private List<Integer> state;        // The current state of the fridge
     private int timesVisited;           // The amount of times this state has been visited
     private int reward;                 // The last reward gotten from reaching this state
+    private Stack<List<Integer>> unvisted;
     private Map<Link, Double> actions;  // A mapping of each action that can be taken to estimate of failure
     private ProblemSpec spec;           // The problem spec, holding all information of probability and fridge
     //private Double totalFail;
@@ -104,7 +104,8 @@ public class State {
         for (List<Integer> action : actions) {
             // If the action can be performed, make it into a link and add it to the list of actions
             if (actionApplies(action)) {
-                this.actions.put(new Link(this, action), -1.0);
+                unvisted.push(action);
+                //this.actions.put(new Link(this, action), -1.0);
             }
         }
     }
@@ -127,6 +128,30 @@ public class State {
         if (totalItems > fridge.getCapacity()) return false;
         return true;
     }
+
+
+    public Stack<List<Integer>> getUnvisted() {
+        return unvisted;
+    }
+
+    public Link bestAction() {
+        Link bestLink = null;
+        int c = 0; // TODO: change c value, stop taking shit from you fuckers
+        Double bestLinkScore = null;
+        for (Link action : actions.keySet()) {
+            Double currentScore = actions.get(action)+c*Math.sqrt(Math.log(timesVisited)/action.getTimesTaken());
+            if (bestLink.equals(null)) {
+                bestLink = action;
+                bestLinkScore = currentScore;
+            }
+            if (currentScore > bestLinkScore) {
+                bestLink = action;
+                bestLinkScore = currentScore;
+            }
+        }
+        return bestLink;
+    }
+
 
     // Part of the useless section. Useful only for greedy searching
     // To renew, uncomment following commented out code

@@ -1,9 +1,6 @@
 package solver;
 
-import problem.Fridge;
-import problem.Matrix;
-import problem.ProblemSpec;
-import problem.State;
+import problem.*;
 
 import java.io.IOException;
 import java.util.*;
@@ -39,9 +36,6 @@ public class MySolver implements OrderingAgent {
 		}
 	}
 
-	private List<> MCTS() {
-
-	}
 
 	public List<Integer> generateShoppingList(List<Integer> inventory,
 	        int numWeeksLeft) {
@@ -85,13 +79,13 @@ public class MySolver implements OrderingAgent {
 	private List<Integer> MCST(State state , int ammount) {
 		double startTime = System.currentTimeMillis();
 		while (!outOfTime(startTime)) {
-			Search(state, 0);
+			search(state, 0);
 		}
 		// TODO: make a getter and setter - shots not (isaac)
 		return null/*action*/;
 	}
 
-	private double Search(State state, int depth) {
+	private double search(State state, int depth) {
 		//TODO: make this number good as shit
 		if (Math.pow(spec.getDiscountFactor(), depth) < 0.1) {
 			return -1.0;
@@ -99,8 +93,15 @@ public class MySolver implements OrderingAgent {
 		if (terminal(depth)) {
 			return state.getReward();
 		}
-		//if ()
-		//dom is an idiot tho
+		if (!state.getUnvisted().isEmpty()) {
+			List<Integer> action = state.getUnvisted().pop();
+			//TODO : estimate fuck you
+			state.updateLink(new Link(state, action), estimate(state, action));
+			return -1.0;
+		} else {
+			//state.
+		}
+		//dom is an idiot tho...
 		return 0;
 	}
 
@@ -119,7 +120,7 @@ public class MySolver implements OrderingAgent {
 		return false;
 	}
 
-	/*
+/*
 	private State piUCT(State state) {
 		// page 23 of 14/10 slides
 
@@ -182,26 +183,10 @@ public class MySolver implements OrderingAgent {
 
 
 		}
-
-
-
 	}
 
+	private double estimate(State state, List<Integer> action) {
+		return -1.0;
+	}
 
-
-/**
-	public HashMap<List<Integer>, Double> createActions() {
-		Set<List<Integer>> toCheck = new HashSet<>();
-		toCheck.add(new ArrayList<>(spec.getFridge().getMaxTypes()));
-		while (toCheck.size()>0) {
-			for (List<Integer> action : toCheck) {
-				for (int i : action) {
-					List<Integer> newAction =
-					//toCheck.add();
-				}
-			}
-		}
-		return null;
-
-	} **/
 }
