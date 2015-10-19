@@ -8,9 +8,9 @@ Performered on every choice process
 
 WHATS THE DEAL WITH SEARCH(E)?!?!?!
     if gamma^d < theshhold value that we will decide to limit the depth we search
-        return 0; (Important for <POINT A>)
+        return 0;
     if terminal(s) (we have reached the final week)
-        return R(s) which is the reward at this state from the previous state (Important for <POINT A>)                 [[[What is the reward for the terminal state]]] = 0
+        return R(s) which is the reward at this state from the previous state                 [[[What is the reward for the terminal state]]] = 0
     if there are actions from the state that have not been tried
         grab an action randomly that we have not tried for this state
         estimate and expand s with a || gives a estimated reward for the action and consider the state as "tried"
