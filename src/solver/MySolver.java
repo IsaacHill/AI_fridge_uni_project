@@ -6,8 +6,7 @@ import problem.ProblemSpec;
 import problem.State;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class MySolver implements OrderingAgent {
 
@@ -130,6 +129,21 @@ public class MySolver implements OrderingAgent {
 		}
 
 		return currentMaxState;
+
+	}
+
+	public HashMap<List<Integer>, Double> createActions() {
+		Set<List<Integer>> toCheck = new HashSet<>();
+		toCheck.add(new ArrayList<>(spec.getFridge().getMaxTypes()));
+		while (toCheck.size()>0) {
+			for (List<Integer> action : toCheck) {
+				for (int i : action) {
+					List<Integer> newAction =
+					//toCheck.add();
+				}
+			}
+		}
+		return null;
 
 	}
 }

@@ -45,20 +45,5 @@ public class State {
     public void setReward(int reward) {
         this.reward = reward;
     }
-
-    public HashMap<List<Integer>, Double> createActions() {
-        Set<List<Integer>> toCheck = new HashSet<>();
-        toCheck.add(new ArrayList<>(spec.getFridge().getMaxTypes()));
-        while (toCheck.size()>0) {
-            for (List<Integer> action : toCheck) {
-                for (int i : action) {
-                    List<Integer> newAction =
-                    //toCheck.add();
-                }
-            }
-        }
-    return null;
-
-    }
     //public Array
 }
