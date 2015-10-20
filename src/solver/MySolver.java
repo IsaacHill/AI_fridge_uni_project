@@ -5,6 +5,13 @@ import problem.*;
 import java.io.IOException;
 import java.util.*;
 
+// TODO: Figure out the problems
+// TODO: Dom's suggestion: Make a list of all states
+// 		TODO: Whenever a new state is made, check the list before making it
+//		TODO: Whenever a new link is made, check it's fromState's actions before making it
+// TODO: Probably won't fix everything.
+// TODO: The current problem: We are getting null rewards and infinite other stuff
+
 public class MySolver implements OrderingAgent {
 
 	private ProblemSpec spec;
@@ -84,9 +91,15 @@ public class MySolver implements OrderingAgent {
 		double startTime = System.currentTimeMillis();
 		while (!outOfTime(startTime)) {
 			search(state, 0);
+			/*for (Link link : state.getActions().keySet()) {
+				System.out.println("This is the action: " + link.getAction() + " and this is the reward " + state.getActions().get(link.getAction()));
+			}*/
 		}
 		// TODO: make a getter and setter - shots not (isaac)
+		System.out.println("------START------");
 		System.out.println(state.bestAction().getAction().toString());
+		System.out.println(state.getActions().get(state.bestAction()));
+		System.out.println("-------END-------");
 		return state.bestAction().getAction();
 	}
 
@@ -128,7 +141,7 @@ public class MySolver implements OrderingAgent {
 	}
 
 	private boolean outOfTime(double time) {
-		if (System.currentTimeMillis()-time > 55000) {
+		if (System.currentTimeMillis()-time > 10000) {
 			return true;
 		}
 		return false;
@@ -160,7 +173,7 @@ public class MySolver implements OrderingAgent {
 			initial.add(i, 0);
 		}
 		actionsHelper(allActions, 0, initial);
-		System.out.println("print stuiff"+ allActions.toString());
+		System.out.println("print stuiff" + allActions.toString());
 		return allActions;
 	}
 
@@ -236,6 +249,7 @@ public class MySolver implements OrderingAgent {
 	}
 
 	private void updateValue(State state, Link action, Double q) {
+		System.out.println();
 		Double newReward = (state.linkReward(action)*action.getTimesTaken()+q)/action.getTimesTaken()+1;
 		state.updateLink(action, newReward);
 		state.visit();

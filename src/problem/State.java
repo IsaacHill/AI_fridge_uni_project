@@ -118,6 +118,8 @@ public class State {
     private Boolean actionApplies(List<Integer> action) {
         Fridge fridge = spec.getFridge();
         int totalItems = 0;
+        int optimalAmount = Math.min(fridge.getMaxPurchase(), fridge.getCapacity() - totalItems(state));
+        if (optimalAmount != totalItems(action)) return false;
         // Check if the action raises an item to over the max that can be eaten
         // Check if the action raises total amount of items to over the fridge capacity
         for (int i = 0; i < action.size(); i++) {
@@ -165,6 +167,16 @@ public class State {
 
     public List<List<Integer>> getAllUnvisited() {
         return unvisited;
+    }
+
+    private int totalItems(List<Integer> action) {
+        int fullness = 0;
+        for (int i : action) fullness += i;
+        return fullness;
+    }
+
+    public Map<Link, Double> getActions() {
+        return actions;
     }
 
     // Part of the useless section. Useful only for greedy searching
