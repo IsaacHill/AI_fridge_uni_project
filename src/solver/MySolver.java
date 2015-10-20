@@ -99,9 +99,7 @@ public class MySolver implements OrderingAgent {
 			return state.getReward();
 		}
 		if (!state.allVisited()) {
-			System.out.println("Current action space size = " + state.getAllUnvisited().size());
 			List<Integer> action = state.getUnvisited();
-			System.out.println("I am here!");
 			state.updateLink(new Link(state, action), estimate(state, action));
 			return -1.0;
 		} else {
@@ -130,7 +128,7 @@ public class MySolver implements OrderingAgent {
 	}
 
 	private boolean outOfTime(double time) {
-		if (System.currentTimeMillis()-time > 10000) {
+		if (System.currentTimeMillis()-time > 55000) {
 			return true;
 		}
 		return false;
@@ -208,11 +206,8 @@ public class MySolver implements OrderingAgent {
 			return (double) state.getReward();
 		} else {
 			if (state.allVisited()) {
-				System.out.println(state.getState().toString());
-				System.out.println(state.getAllLinks().toString());
 				// TODO: grab a random action that has already been looked at.
 			}
-			System.out.println(state.getAllUnvisited().size() + "---" + depth);
 			List<Integer> nextAction = nextState.peekUnvisited();
 			return (double)state.getReward() + spec.getDiscountFactor()*estimateHelper(nextState, nextAction, depth+1);
 		}
@@ -223,7 +218,6 @@ public class MySolver implements OrderingAgent {
 		for (int i = 0; i < spec.getFridge().getMaxTypes(); i++) {
 			newState.add(currentState.getState().get(i) + action.get(i));
 		}
-		//State psuedoState = new State(newState, allActions, spec);
 		List<Integer> want = mySim.sampleUserWants(newState);
 		List<Integer> nextState = new ArrayList<>();
 		int penalty = 0;

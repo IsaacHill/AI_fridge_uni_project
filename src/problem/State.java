@@ -15,7 +15,6 @@ public class State {
     private int timesVisited;           // The amount of times this state has been visited
     private int reward;                 // The last reward gotten from reaching this state
     private List<List<Integer>> unvisited;
-    private List<List<Integer>> allLinks;
     private Map<Link, Double> actions;  // A mapping of each action that can be taken to estimate of failure
     private ProblemSpec spec;           // The problem spec, holding all information of probability and fridge
     //private Double totalFail;
@@ -47,7 +46,6 @@ public class State {
             this.spec = spec;
             this.actions = new HashMap<>();
             this.unvisited = new ArrayList<>();
-            this.allLinks = new ArrayList<>();
             generateLinks(actions);
             //totalFail = 0.0;
         } catch (IllegalArgumentException e) {
@@ -103,14 +101,9 @@ public class State {
      */
     private void generateLinks(Set<List<Integer>> actions) throws NullPointerException, IllegalArgumentException {
         for (List<Integer> action : actions) {
-            List<Integer> initial = new ArrayList<>(spec.getFridge().getMaxTypes());
-            for (int i = 0; i < spec.getFridge().getMaxTypes(); i++) initial.add(i, 0);
-            unvisited.add(initial);
-            allLinks.add(initial);
             // If the action can be performed, make it into a link and add it to the list of actions
             if (actionApplies(action)) {
                 unvisited.add(action);
-                allLinks.add(action);
                 //this.actions.put(new Link(this, action), -1.0);
             }
         }
@@ -127,7 +120,7 @@ public class State {
         int totalItems = 0;
         // Check if the action raises an item to over the max that can be eaten
         // Check if the action raises total amount of items to over the fridge capacity
-        for (int i = 0; i < action.size()-1; i++) {
+        for (int i = 0; i < action.size(); i++) {
             if (action.get(i)+state.get(i) > fridge.getMaxItemsPerType()) {
                 return false;
             }
@@ -172,10 +165,6 @@ public class State {
 
     public List<List<Integer>> getAllUnvisited() {
         return unvisited;
-    }
-
-    public List<List<Integer>> getAllLinks() {
-        return allLinks;
     }
 
     // Part of the useless section. Useful only for greedy searching
