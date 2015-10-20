@@ -152,7 +152,8 @@ public class State {
         Link bestLink = null;
         Double bestLinkScore = null;
         for (Link action : actions.keySet()) {
-            Double currentScore = actions.get(action) + (C * Math.sqrt(((Math.log(timesVisited))/action.getTimesTaken())));
+            if (actions.get(action) == null) continue;
+            Double currentScore = actions.get(action) + (C * Math.sqrt(Math.log(timesVisited))/(action.getTimesTaken()+1));
             if (bestLink == null) {
                 bestLink = action;
                 bestLinkScore = currentScore;

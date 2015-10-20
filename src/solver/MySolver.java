@@ -249,7 +249,6 @@ public class MySolver implements OrderingAgent {
 	}
 
 	private void updateValue(State state, Link action, Double q) {
-		System.out.println();
 		Double newReward = (state.linkReward(action)*action.getTimesTaken()+q)/action.getTimesTaken()+1;
 		state.updateLink(action, newReward);
 		state.visit();
