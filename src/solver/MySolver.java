@@ -9,18 +9,18 @@ public class MySolver implements OrderingAgent {
 
 	private ProblemSpec spec;
 	private Fridge fridge;
-    private List<Matrix> probabilities;
-	//private List<Integer> action = new ArrayList<>();
+    // private List<Matrix> probabilities;
+	// private List<Integer> action = new ArrayList<>();
 	private int weeksPassed;
 	private Set<List<Integer>> allActions;
 	private Simulator mySim;
-	private double THRESHHOLD = 0.1;
+	final private double THRESHOLD = 0.7;
 	//private double current;
 	
 	public MySolver(ProblemSpec spec) throws IOException {
-	    this.spec = spec;
+		this.spec = spec;
 		fridge = spec.getFridge();
-        probabilities = spec.getProbabilities();
+        // probabilities = spec.getProbabilities();
 		weeksPassed = 0;
 		allActions = createActions();
 		mySim = new Simulator(spec);
@@ -28,12 +28,9 @@ public class MySolver implements OrderingAgent {
 
 	public void doOfflineComputation() {
 		createActions();
-	    // TODO Write your own code here.
-		//doOnlineComputation();
 	}
 
-	public void doOnlineComputation() {
-	/**	// TODO Look at Pseudo
+	/*public void doOnlineComputation() {
 		double current = System.currentTimeMillis();
 		createActions();
 
@@ -41,9 +38,9 @@ public class MySolver implements OrderingAgent {
 		while (current < start+50000) {
 			MCST(first);
 		}
-		//generateShoppingList(); **/
+		//generateShoppingList();
 
-	}
+	}*/
 
 		//TODO look at this more tomorrow god damn it im tired
 	public List<Integer> generateShoppingList(List<Integer> inventory,
@@ -86,7 +83,6 @@ public class MySolver implements OrderingAgent {
 
 	// TODO: add an action
 	private List<Integer> MCST(State state) {
-		List<Integer> idealAction = null;
 		double startTime = System.currentTimeMillis();
 		while (!outOfTime(startTime)) {
 			search(state, 0);
@@ -98,16 +94,16 @@ public class MySolver implements OrderingAgent {
 
 	private double search(State state, int depth) {
 		//TODO: make this number good as shit
-		if (Math.pow(spec.getDiscountFactor(), depth) < THRESHHOLD) {
+		if (Math.pow(spec.getDiscountFactor(), depth) < THRESHOLD) {
 			return -1.0;
 		}
 		if (terminal(depth)) {
 			return state.getReward();
 		}
-	//	System.out.println(state.getUnvisted().size());
-		if (!state.getUnvisted().isEmpty()) {
-			List<Integer> action = state.getUnvisted().pop();
-		//	System.out.println(state.getUnvisted().size());
+	//	System.out.println(state.getUnvisited().size());
+		if (!state.getUnvisited().isEmpty()) {
+			List<Integer> action = state.getUnvisited();
+		//	System.out.println(state.getUnvisited().size());
 			//TODO : estimate fuck you
 			state.updateLink(new Link(state, action), estimate(state, action));
 			return -1.0;
@@ -115,9 +111,9 @@ public class MySolver implements OrderingAgent {
 			Link action = state.bestAction();
 			State newState = simulateAction(state, action.getAction());
 			Double searched = search(newState, depth + 1);
-			Double q = null;
+			Double q;
 			if (searched < 0) {
-				q = Double.valueOf(state.getReward());
+				q = (double) state.getReward();
 			} else {
 				q = state.getReward() + spec.getDiscountFactor() * searched;
 			}
@@ -133,11 +129,7 @@ public class MySolver implements OrderingAgent {
 	}
 
 	private boolean terminal(int depth) {
-		if (depth+weeksPassed >= spec.getNumWeeks()) {
-			return true;
-		} else {
-			return false;
-		}
+		return depth + weeksPassed >= spec.getNumWeeks();
 	}
 
 	private boolean outOfTime(double time) {
@@ -168,7 +160,7 @@ public class MySolver implements OrderingAgent {
 
 	public Set<List<Integer>> createActions() {
 		Set<List<Integer>> allActions = new HashSet<>();
-		List<Integer> initial = new ArrayList<Integer>
+		List<Integer> initial = new ArrayList<>
 				(spec.getFridge().getMaxTypes());
 		for (int i = 0; i < spec.getFridge().getMaxTypes(); i++) {
 			initial.add(i, 0);
@@ -178,12 +170,6 @@ public class MySolver implements OrderingAgent {
 		return allActions;
 	}
 
-	/**
-	 * Recurisve function to help createActions() find all possible actions
-	 * @param allActions
-	 * @param ordered
-	 * @param current
-	 */
 	private void actionsHelper(Set<List<Integer>> allActions, int ordered,
 						  List<Integer> current) {
 		int total = 0;
@@ -222,15 +208,15 @@ public class MySolver implements OrderingAgent {
 
 	private Double estimateHelper(State state, List<Integer> action, int depth) {
 		State nextState = simulateAction(state, action);
-		if (Math.pow(spec.getDiscountFactor(), depth) < 0.7 || terminal(depth) /* || state.getUnvisted().size() == 0*/) {
-			return Double.valueOf(state.getReward());
+		if (Math.pow(spec.getDiscountFactor(), depth) < THRESHOLD || terminal(depth) /* || state.getUnvisted().size() == 0*/) {
+			return (double) state.getReward();
 		} else {
-			System.out.println(state.getUnvisted().size() + "---" + depth);
-			List<Integer> nextAction = state.getUnvisted().peek();
+			System.out.println(state.getUnvisited().size() + "---" + depth);
+			List<Integer> nextAction = state.peekUnvisited();
 			//TODO: 13% randomness
 			//TODO : estimate fuck you
 			System.out.println(spec.getDiscountFactor());
-			return Double.valueOf(state.getReward()) + spec.getDiscountFactor()*estimateHelper(nextState, nextAction, depth+1);
+			return (double)state.getReward() + spec.getDiscountFactor()*estimateHelper(nextState, nextAction, depth+1);
 		}
 	}
 

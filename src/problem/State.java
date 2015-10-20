@@ -10,11 +10,11 @@ import java.util.*;
  */
 public class State {
     // Global Variables
-    private double C = Math.sqrt(2.0); // TODO: change c value, stop taking shit from you fuckers
+    private double C = Math.sqrt(2.0);  // Constant used for calculation
     private List<Integer> state;        // The current state of the fridge
     private int timesVisited;           // The amount of times this state has been visited
     private int reward;                 // The last reward gotten from reaching this state
-    private Stack<List<Integer>> unvisted;
+    private List<List<Integer>> unvisited;
     private Map<Link, Double> actions;  // A mapping of each action that can be taken to estimate of failure
     private ProblemSpec spec;           // The problem spec, holding all information of probability and fridge
     //private Double totalFail;
@@ -45,7 +45,7 @@ public class State {
             reward = 0;
             this.spec = spec;
             this.actions = new HashMap<>();
-            this.unvisted = new Stack<>();
+            this.unvisited = new ArrayList<>();
             generateLinks(actions);
             //totalFail = 0.0;
         } catch (IllegalArgumentException e) {
@@ -63,12 +63,6 @@ public class State {
      * Increments the amount of times this node has been reached during the search
      */
     public void visit() { timesVisited++; }
-
-    /**
-     * A method to return the amount of times this node has been reached
-     * @return the amount of times this node has been reached
-     */
-    public int getTimesVisited() { return timesVisited; }
 
     /**
      * Sets the most recent reward (failures) received for reaching this node
@@ -110,7 +104,7 @@ public class State {
             // If the action can be performed, make it into a link and add it to the list of actions
             if (actionApplies(action)) {
                // System.out.println("serious?");
-                unvisted.push(action);
+                unvisited.add(action);
                 //this.actions.put(new Link(this, action), -1.0);
             }
         }
@@ -138,14 +132,24 @@ public class State {
             }
             totalItems += (action.get(i) + state.get(i));
         }
-        if (totalItems > fridge.getCapacity()) return false;
-        return true;
+        return totalItems <= fridge.getCapacity();
     }
 
 
-    public Stack<List<Integer>> getUnvisted() {
-        return unvisted;
+    public List<Integer> getUnvisited() {
+        int random = (int)Math.floor(Math.random()*(double)unvisited.size());
+        if (random >= unvisited.size()) random = 0;
+        List<Integer> unvisitedState = unvisited.get(random);
+        unvisited.remove(random);
+        return unvisitedState;
     }
+
+    public List<Integer> peekUnvisited() {
+        int random = (int)Math.floor(Math.random()*(double)unvisited.size());
+        if (random >= unvisited.size()) random = 0;
+        return unvisited.get(random);
+    }
+
 
     public Link bestAction() {
         Link bestLink = null;
