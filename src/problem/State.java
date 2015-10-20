@@ -108,6 +108,7 @@ public class State {
         for (List<Integer> action : actions) {
             // If the action can be performed, make it into a link and add it to the list of actions
             if (actionApplies(action)) {
+               // System.out.println("serious?");
                 unvisted.push(action);
                 //this.actions.put(new Link(this, action), -1.0);
             }
@@ -123,10 +124,17 @@ public class State {
     private Boolean actionApplies(List<Integer> action) {
         Fridge fridge = spec.getFridge();
         int totalItems = 0;
+       /** System.out.println("+============+");
+        System.out.println("action state " + action.toString());
+        System.out.println("state state " + state.toString());
+        System.out.println("size = " +fridge.getMaxItemsPerType() + " or " +spec.getFridge().getMaxItemsPerType()); **/
         // Check if the action raises an item to over the max that can be eaten
         // Check if the action raises total amount of items to over the fridge capacity
         for (int i = 0; i < action.size()-1; i++) {
-            if (action.get(i)+state.get(i) > fridge.getMaxItemsPerType()) return false;
+            if (action.get(i)+state.get(i) > fridge.getMaxItemsPerType()) {
+             //   System.out.println("WHY");
+                return false;
+            }
             totalItems += (action.get(i) + state.get(i));
         }
         if (totalItems > fridge.getCapacity()) return false;
@@ -144,7 +152,7 @@ public class State {
         Double bestLinkScore = null;
         for (Link action : actions.keySet()) {
             Double currentScore = actions.get(action)+c*Math.sqrt(Math.log(timesVisited)/action.getTimesTaken());
-            if (bestLink.equals(null)) {
+            if (bestLink == null) {
                 bestLink = action;
                 bestLinkScore = currentScore;
             }
