@@ -15,6 +15,7 @@ public class State {
     private int timesVisited;           // The amount of times this state has been visited
     private int reward;                 // The last reward gotten from reaching this state
     private List<List<Integer>> unvisited;
+    private List<List<Integer>> allLinks;
     private Map<Link, Double> actions;  // A mapping of each action that can be taken to estimate of failure
     private ProblemSpec spec;           // The problem spec, holding all information of probability and fridge
     //private Double totalFail;
@@ -42,10 +43,11 @@ public class State {
         try {
             this.state = state;
             timesVisited = 0;
-            reward = 0;
+            reward = Integer.MAX_VALUE;
             this.spec = spec;
             this.actions = new HashMap<>();
             this.unvisited = new ArrayList<>();
+            this.allLinks = new ArrayList<>();
             generateLinks(actions);
             //totalFail = 0.0;
         } catch (IllegalArgumentException e) {
@@ -101,10 +103,14 @@ public class State {
      */
     private void generateLinks(Set<List<Integer>> actions) throws NullPointerException, IllegalArgumentException {
         for (List<Integer> action : actions) {
+            List<Integer> initial = new ArrayList<>(spec.getFridge().getMaxTypes());
+            for (int i = 0; i < spec.getFridge().getMaxTypes(); i++) initial.add(i, 0);
+            unvisited.add(initial);
+            allLinks.add(initial);
             // If the action can be performed, make it into a link and add it to the list of actions
             if (actionApplies(action)) {
-               // System.out.println("serious?");
                 unvisited.add(action);
+                allLinks.add(action);
                 //this.actions.put(new Link(this, action), -1.0);
             }
         }
@@ -119,15 +125,10 @@ public class State {
     private Boolean actionApplies(List<Integer> action) {
         Fridge fridge = spec.getFridge();
         int totalItems = 0;
-       /** System.out.println("+============+");
-        System.out.println("action state " + action.toString());
-        System.out.println("state state " + state.toString());
-        System.out.println("size = " +fridge.getMaxItemsPerType() + " or " +spec.getFridge().getMaxItemsPerType()); **/
         // Check if the action raises an item to over the max that can be eaten
         // Check if the action raises total amount of items to over the fridge capacity
         for (int i = 0; i < action.size()-1; i++) {
             if (action.get(i)+state.get(i) > fridge.getMaxItemsPerType()) {
-             //   System.out.println("WHY");
                 return false;
             }
             totalItems += (action.get(i) + state.get(i));
@@ -135,6 +136,7 @@ public class State {
         return totalItems <= fridge.getCapacity();
     }
 
+    public Boolean allVisited() { return unvisited.isEmpty(); }
 
     public List<Integer> getUnvisited() {
         int random = (int)Math.floor(Math.random()*(double)unvisited.size());
@@ -156,7 +158,6 @@ public class State {
         Double bestLinkScore = null;
         for (Link action : actions.keySet()) {
             Double currentScore = actions.get(action) + (C * Math.sqrt(((Math.log(timesVisited))/action.getTimesTaken())));
-            //System.out.println(actions.get(action));
             if (bestLink == null) {
                 bestLink = action;
                 bestLinkScore = currentScore;
@@ -169,6 +170,13 @@ public class State {
         return bestLink;
     }
 
+    public List<List<Integer>> getAllUnvisited() {
+        return unvisited;
+    }
+
+    public List<List<Integer>> getAllLinks() {
+        return allLinks;
+    }
 
     // Part of the useless section. Useful only for greedy searching
     // To renew, uncomment following commented out code

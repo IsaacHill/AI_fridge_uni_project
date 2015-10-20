@@ -8,8 +8,7 @@ import java.util.*;
 public class MySolver implements OrderingAgent {
 
 	private ProblemSpec spec;
-	private Fridge fridge;
-    // private List<Matrix> probabilities;
+	// private List<Matrix> probabilities;
 	// private List<Integer> action = new ArrayList<>();
 	private int weeksPassed;
 	private Set<List<Integer>> allActions;
@@ -19,15 +18,12 @@ public class MySolver implements OrderingAgent {
 	
 	public MySolver(ProblemSpec spec) throws IOException {
 		this.spec = spec;
-		fridge = spec.getFridge();
-        // probabilities = spec.getProbabilities();
-		weeksPassed = 0;
-		allActions = createActions();
-		mySim = new Simulator(spec);
 	}
 
 	public void doOfflineComputation() {
-		createActions();
+		allActions = createActions();
+		weeksPassed = 0;
+		mySim = new Simulator(spec);
 	}
 
 	/*public void doOnlineComputation() {
@@ -47,6 +43,8 @@ public class MySolver implements OrderingAgent {
 	        int numWeeksLeft) {
 
 		State current = new State(inventory, allActions, spec);
+		System.out.println("Time for some MCST with " + current.getState().toString());
+		System.out.println("He has a list to look through of " + current.getAllUnvisited());
 		return MCST(current);
 
 
@@ -100,11 +98,10 @@ public class MySolver implements OrderingAgent {
 		if (terminal(depth)) {
 			return state.getReward();
 		}
-	//	System.out.println(state.getUnvisited().size());
-		if (!state.getUnvisited().isEmpty()) {
+		if (!state.allVisited()) {
+			System.out.println("Current action space size = " + state.getAllUnvisited().size());
 			List<Integer> action = state.getUnvisited();
-		//	System.out.println(state.getUnvisited().size());
-			//TODO : estimate fuck you
+			System.out.println("I am here!");
 			state.updateLink(new Link(state, action), estimate(state, action));
 			return -1.0;
 		} else {
@@ -136,7 +133,6 @@ public class MySolver implements OrderingAgent {
 		if (System.currentTimeMillis()-time > 10000) {
 			return true;
 		}
-		//System.out.println("so much time");
 		return false;
 	}
 
@@ -166,7 +162,7 @@ public class MySolver implements OrderingAgent {
 			initial.add(i, 0);
 		}
 		actionsHelper(allActions, 0, initial);
-		System.out.println(allActions.toString());
+		System.out.println("print stuiff"+ allActions.toString());
 		return allActions;
 	}
 
@@ -190,7 +186,7 @@ public class MySolver implements OrderingAgent {
 		}
 		allActions.add(current);
 		for (int i = 0; i < spec.getFridge().getMaxTypes(); i++) {
-			if (current.get(i) <=  spec.getFridge().getMaxItemsPerType()) {
+			if (current.get(i) >=  spec.getFridge().getMaxItemsPerType()) {
 				continue;
 			}
 			List<Integer> newCurrent = new LinkedList<>(current);
@@ -208,25 +204,25 @@ public class MySolver implements OrderingAgent {
 
 	private Double estimateHelper(State state, List<Integer> action, int depth) {
 		State nextState = simulateAction(state, action);
-		if (Math.pow(spec.getDiscountFactor(), depth) < THRESHOLD || terminal(depth) /* || state.getUnvisted().size() == 0*/) {
+		if (Math.pow(spec.getDiscountFactor(), depth) < THRESHOLD || terminal(depth)) {
 			return (double) state.getReward();
 		} else {
-			System.out.println(state.getUnvisited().size() + "---" + depth);
-			List<Integer> nextAction = state.peekUnvisited();
-			//TODO: 13% randomness
-			//TODO : estimate fuck you
-			System.out.println(spec.getDiscountFactor());
+			if (state.allVisited()) {
+				System.out.println(state.getState().toString());
+				System.out.println(state.getAllLinks().toString());
+				// TODO: grab a random action that has already been looked at.
+			}
+			System.out.println(state.getAllUnvisited().size() + "---" + depth);
+			List<Integer> nextAction = nextState.peekUnvisited();
 			return (double)state.getReward() + spec.getDiscountFactor()*estimateHelper(nextState, nextAction, depth+1);
 		}
 	}
 
 	private State simulateAction(State currentState, List<Integer> action) {
 		List<Integer> newState = new ArrayList<>();
-		for (int i = 0; i < fridge.getMaxTypes(); i++) {
+		for (int i = 0; i < spec.getFridge().getMaxTypes(); i++) {
 			newState.add(currentState.getState().get(i) + action.get(i));
-			//System.out.println("simulate action bug values at index " +i+" :  current state " +currentState.getState().get(i) + "-+- action state " + action.get(i) + " -=- max " + fridge.getMaxItemsPerType());
 		}
-		//System.out.println("Total size of current state : "+ currentState.getState().size() + "  total size of action list:  "+action.size());
 		//State psuedoState = new State(newState, allActions, spec);
 		List<Integer> want = mySim.sampleUserWants(newState);
 		List<Integer> nextState = new ArrayList<>();
