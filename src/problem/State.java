@@ -10,6 +10,7 @@ import java.util.*;
  */
 public class State {
     // Global Variables
+    private double C = Math.sqrt(2.0); // TODO: change c value, stop taking shit from you fuckers
     private List<Integer> state;        // The current state of the fridge
     private int timesVisited;           // The amount of times this state has been visited
     private int reward;                 // The last reward gotten from reaching this state
@@ -148,15 +149,15 @@ public class State {
 
     public Link bestAction() {
         Link bestLink = null;
-        Double c = Math.sqrt(2.0); // TODO: change c value, stop taking shit from you fuckers
         Double bestLinkScore = null;
         for (Link action : actions.keySet()) {
-            Double currentScore = actions.get(action)+c*Math.sqrt(Math.log(timesVisited)/action.getTimesTaken());
+            Double currentScore = actions.get(action) + (C * Math.sqrt(((Math.log(timesVisited))/action.getTimesTaken())));
+            //System.out.println(actions.get(action));
             if (bestLink == null) {
                 bestLink = action;
                 bestLinkScore = currentScore;
             }
-            if (currentScore > bestLinkScore) {
+            if (currentScore < bestLinkScore) {
                 bestLink = action;
                 bestLinkScore = currentScore;
             }

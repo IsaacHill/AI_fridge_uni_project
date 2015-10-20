@@ -14,6 +14,7 @@ public class MySolver implements OrderingAgent {
 	private int weeksPassed;
 	private Set<List<Integer>> allActions;
 	private Simulator mySim;
+	private double THRESHHOLD = 0.1;
 	//private double current;
 	
 	public MySolver(ProblemSpec spec) throws IOException {
@@ -91,12 +92,13 @@ public class MySolver implements OrderingAgent {
 			search(state, 0);
 		}
 		// TODO: make a getter and setter - shots not (isaac)
+		System.out.println(state.bestAction().getAction().toString());
 		return state.bestAction().getAction();
 	}
 
 	private double search(State state, int depth) {
 		//TODO: make this number good as shit
-		if (Math.pow(spec.getDiscountFactor(), depth) < 0.1) {
+		if (Math.pow(spec.getDiscountFactor(), depth) < THRESHHOLD) {
 			return -1.0;
 		}
 		if (terminal(depth)) {
@@ -220,13 +222,14 @@ public class MySolver implements OrderingAgent {
 
 	private Double estimateHelper(State state, List<Integer> action, int depth) {
 		State nextState = simulateAction(state, action);
-		if (Math.pow(spec.getDiscountFactor(), depth) < 0.7 || terminal(depth) || state.getUnvisted().size() == 0) {
+		if (Math.pow(spec.getDiscountFactor(), depth) < 0.7 || terminal(depth) /* || state.getUnvisted().size() == 0*/) {
 			return Double.valueOf(state.getReward());
 		} else {
-		//System.out.println(state.getUnvisted().size() + "---" + depth);
+			System.out.println(state.getUnvisted().size() + "---" + depth);
 			List<Integer> nextAction = state.getUnvisted().peek();
 			//TODO: 13% randomness
 			//TODO : estimate fuck you
+			System.out.println(spec.getDiscountFactor());
 			return Double.valueOf(state.getReward()) + spec.getDiscountFactor()*estimateHelper(nextState, nextAction, depth+1);
 		}
 	}
