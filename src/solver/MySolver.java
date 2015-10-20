@@ -40,7 +40,7 @@ public class MySolver implements OrderingAgent {
 		while (current < start+50000) {
 			MCST(first);
 		}
-		generateShoppingList()
+		//generateShoppingList();
 
 	}
 

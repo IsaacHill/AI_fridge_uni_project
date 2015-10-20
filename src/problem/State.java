@@ -140,7 +140,7 @@ public class State {
 
     public Link bestAction() {
         Link bestLink = null;
-        int c = 0; // TODO: change c value, stop taking shit from you fuckers
+        Double c = Math.sqrt(2.0); // TODO: change c value, stop taking shit from you fuckers
         Double bestLinkScore = null;
         for (Link action : actions.keySet()) {
             Double currentScore = actions.get(action)+c*Math.sqrt(Math.log(timesVisited)/action.getTimesTaken());
