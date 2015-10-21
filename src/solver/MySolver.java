@@ -22,8 +22,9 @@ public class MySolver implements OrderingAgent {
 	private List<State> states;
 	private Simulator mySim;
 	final private double THRESHOLD = 0.7;
-	final private int TIMEOUT = 55000;
+	final private int TIMEOUT = 100;
 	final private boolean greedy = false;
+	final private int SIMULATE_ACTION_MULTIPLE = 100;
 	//private double current;
 	
 	public MySolver(ProblemSpec spec) throws IOException {
@@ -114,7 +115,7 @@ public class MySolver implements OrderingAgent {
 			return 0;
 		} else {
 			Link action = state.bestAction();
-			State newState = checker(simulateAction(state, action.getAction()));
+			State newState = checker(simulateActionAverage(state, action.getAction())); // !Liam - changed this to call average
 			Double searched = search(newState, depth + 1);
 			Double q;
 			q = (double) state.getReward() + spec.getDiscountFactor() * searched;
@@ -189,18 +190,65 @@ public class MySolver implements OrderingAgent {
 		}
 	}
 
+	/**
+	 * Simulates action on currentState SIMULATE_ACTION_MULTIPLE times.
+	 * @param currentState
+	 * @param action
+	 * @return
+	 */
+	private State simulateActionAverage(State currentState, List<Integer> action) {
+		Map<State, Integer> statePenalties = new HashMap<>();	// key is state, value is reward
+
+		for (int i = 0; i < SIMULATE_ACTION_MULTIPLE; i++) {
+			// get simulated state
+			State simulatedState = simulateAction(currentState, action);
+			// add simulated state to statePenalties. Average the reward if already in map
+			if (statePenalties.containsKey(simulatedState)) {
+				// average reward and update
+				int currentReward = statePenalties.get(simulatedState);
+				int newReward = simulatedState.getReward();
+				int avgReward = (currentReward + newReward) / 2;
+				statePenalties.replace(simulatedState, avgReward);
+			} else {
+				statePenalties.put(simulatedState, simulatedState.getReward());
+			}
+		}
+		// have completed all simulations. Now grab the best state
+		State currentBestState = null;
+		int currentBestReward = Integer.MAX_VALUE;
+		for (State state : statePenalties.keySet()) {
+			if (state.getReward() < currentBestReward) {
+				currentBestState = state;
+				currentBestReward = state.getReward();
+			}
+		}
+		return currentBestState;
+	}
+
+	/**
+	 * simulates action on current state, and updates the re
+	 * @param currentState
+	 * @param action
+	 * @return
+	 */
 	private State simulateAction(State currentState, List<Integer> action) {
+		// copy currentState to newState
 		List<Integer> newState = new ArrayList<>();
 		for (int i = 0; i < spec.getFridge().getMaxTypes(); i++) {
 			newState.add(currentState.getState().get(i) + action.get(i));
 		}
+		// get what user wants
 		List<Integer> want = mySim.sampleUserWants(newState);
-		List<Integer> nextState = new ArrayList<>();
+		List<Integer> nextState = new ArrayList<>(); // the nextState after applying want to newState
+
+		// loop through the state, applying want to newState, and check expected penalty.
 		int penalty = 0;
 		for (int i = 0; i < newState.size(); i++) {
 			if (newState.get(i) >= want.get(i)) {
+				// we have what user wanted, set nextState accordingly
 				nextState.add(newState.get(i)-want.get(i));
 			} else {
+				// didn't have what user wanted, add penalty
 				nextState.add(0);
 				penalty += (want.get(i)-newState.get(i));
 			}
@@ -208,7 +256,6 @@ public class MySolver implements OrderingAgent {
 		State simulatedState = checker(new State(nextState, allActions, spec));
 		simulatedState.setReward(penalty);
 		return simulatedState;
-
 	}
 
 	private void updateValue(State state, Link action, Double q) {
@@ -217,6 +264,13 @@ public class MySolver implements OrderingAgent {
 		action.actionTaken();
 	}
 
+	/**
+	 * Checks whether state is in the current list of states.
+	 * If state is in states, return state. Otherwise add state to states
+	 * 		and return state.
+	 * @param state the state to check.
+	 * @return	the state.
+	 */
 	private State checker(State state) {
 		int occurrence = states.indexOf(state);
 		if (occurrence < 0) states.add(state);
