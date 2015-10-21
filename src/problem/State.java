@@ -15,7 +15,7 @@ public class State {
     private int timesVisited;           // The amount of times this state has been visited
     private int reward;                 // The last reward gotten from reaching this state
     private List<List<Integer>> unvisited;
-    private Map<Link, Double> actions;  // A mapping of each action that can be taken to estimate of failure
+    private List<Link> actions;  // A mapping of each action that can be taken to estimate of failure
     private ProblemSpec spec;           // The problem spec, holding all information of probability and fridge
     //private Double totalFail;
 
@@ -42,9 +42,9 @@ public class State {
         try {
             this.state = state;
             timesVisited = 0;
-            reward = Integer.MAX_VALUE;
+            reward = 0;
             this.spec = spec;
-            this.actions = new HashMap<>();
+            this.actions = new ArrayList<>();
             this.unvisited = new ArrayList<>();
             generateLinks(actions);
             //totalFail = 0.0;
@@ -81,14 +81,9 @@ public class State {
      * A method to update a link in the list of potential actions
      * @param link
      *          The link that is being updated
-     * @param reward
-     *          The new estimated reward for taking this path
      */
-    public void updateLink(Link link, Double reward) { actions.put(link, reward); }
+    public void addLink(Link link) { actions.add(link); }
 
-    public Double linkReward(Link link) {
-        return actions.get(link);
-    }
     /**
      * Takes a list of actions, filters out all actions that cannot be applied to the current state and
      * turns all the remaining actions into Links, adding them to the list of actions for this state
@@ -142,6 +137,11 @@ public class State {
     }
 
     public List<Integer> peekUnvisited() {
+        if (allVisited()) {
+            int random = (int)Math.floor(Math.random()*(double)actions.size());
+            if (random >= actions.size()) random = 0;
+            return actions.get(random).getAction();
+        }
         int random = (int)Math.floor(Math.random()*(double)unvisited.size());
         if (random >= unvisited.size()) random = 0;
         return unvisited.get(random);
@@ -151,14 +151,16 @@ public class State {
     public Link bestAction() {
         Link bestLink = null;
         Double bestLinkScore = null;
-        for (Link action : actions.keySet()) {
-            if (actions.get(action) == null) continue;
-            Double currentScore = actions.get(action) + (C * Math.sqrt(Math.log(timesVisited))/(action.getTimesTaken()+1));
+        for (Link action : actions) {
+            //if (action.getLinkReward() > 100) continue;
+            Double currentScore = action.getLinkReward() + (C * Math.sqrt(Math.log(timesVisited))/(action.getTimesTaken()+1));
             if (bestLink == null) {
+                System.out.println("EVERYTHING IS NULL! " + actions.size());
                 bestLink = action;
                 bestLinkScore = currentScore;
             }
             if (currentScore < bestLinkScore) {
+                System.out.println("Reward turned from " + bestLinkScore + " to " + currentScore);
                 bestLink = action;
                 bestLinkScore = currentScore;
             }
@@ -176,7 +178,26 @@ public class State {
         return fullness;
     }
 
-    public Map<Link, Double> getActions() {
+    @Override
+    public boolean equals(Object o) {
+        if (o.getClass() != this.getClass()) return false;
+        State compareState = (State)o;
+        for (int i = 0; i < this.getState().size(); i++) {
+            if (!Objects.equals(this.getState().get(i), compareState.getState().get(i))) return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int easyInt = 0;
+        for (int i = 0; i < this.getState().size(); i++) {
+            easyInt += this.getState().get(i)*(10^i);
+        }
+        return easyInt;
+    }
+
+    public List<Link> getActions() {
         return actions;
     }
 

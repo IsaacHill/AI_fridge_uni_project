@@ -19,6 +19,7 @@ public class MySolver implements OrderingAgent {
 	// private List<Integer> action = new ArrayList<>();
 	private int weeksPassed;
 	private Set<List<Integer>> allActions;
+	private List<State> states;
 	private Simulator mySim;
 	final private double THRESHOLD = 0.7;
 	//private double current;
@@ -31,6 +32,7 @@ public class MySolver implements OrderingAgent {
 		allActions = createActions();
 		weeksPassed = 0;
 		mySim = new Simulator(spec);
+		states = new ArrayList<>();
 	}
 
 	/*public void doOnlineComputation() {
@@ -49,9 +51,8 @@ public class MySolver implements OrderingAgent {
 	public List<Integer> generateShoppingList(List<Integer> inventory,
 	        int numWeeksLeft) {
 
-		State current = new State(inventory, allActions, spec);
+		State current = checker(new State(inventory, allActions, spec));
 		System.out.println("Time for some MCST with " + current.getState().toString());
-		System.out.println("He has a list to look through of " + current.getAllUnvisited());
 		return MCST(current);
 
 
@@ -91,14 +92,11 @@ public class MySolver implements OrderingAgent {
 		double startTime = System.currentTimeMillis();
 		while (!outOfTime(startTime)) {
 			search(state, 0);
-			/*for (Link link : state.getActions().keySet()) {
-				System.out.println("This is the action: " + link.getAction() + " and this is the reward " + state.getActions().get(link.getAction()));
-			}*/
 		}
 		// TODO: make a getter and setter - shots not (isaac)
 		System.out.println("------START------");
 		System.out.println(state.bestAction().getAction().toString());
-		System.out.println(state.getActions().get(state.bestAction()));
+		System.out.println(state.bestAction().getLinkReward());
 		System.out.println("-------END-------");
 		return state.bestAction().getAction();
 	}
@@ -106,34 +104,28 @@ public class MySolver implements OrderingAgent {
 	private double search(State state, int depth) {
 		//TODO: make this number good as shit
 		if (Math.pow(spec.getDiscountFactor(), depth) < THRESHOLD) {
-			return -1.0;
+			return 0;
 		}
 		if (terminal(depth)) {
 			return state.getReward();
 		}
 		if (!state.allVisited()) {
 			List<Integer> action = state.getUnvisited();
-			state.updateLink(new Link(state, action), estimate(state, action));
-			return -1.0;
+			Link newLink = new Link(state, action);
+			state.addLink(newLink);
+			newLink.setLinkReward(estimate(state, action));
+			//System.out.println("I'm looking at estimated reward: " + newLink.getLinkReward());
+			return 0;
 		} else {
 			Link action = state.bestAction();
-			State newState = simulateAction(state, action.getAction());
+			State newState = checker(simulateAction(state, action.getAction()));
 			Double searched = search(newState, depth + 1);
 			Double q;
-			if (searched < 0) {
-				q = (double) state.getReward();
-			} else {
-				q = state.getReward() + spec.getDiscountFactor() * searched;
-			}
+			q = (double) state.getReward() + spec.getDiscountFactor() * searched;
 			updateValue(state, action, q);
 			action.addNextState(newState);
-
-
-
-
+			return 0;
 		}
-		//dom is an idiot tho...
-		return 0;
 	}
 
 	private boolean terminal(int depth) {
@@ -141,10 +133,7 @@ public class MySolver implements OrderingAgent {
 	}
 
 	private boolean outOfTime(double time) {
-		if (System.currentTimeMillis()-time > 10000) {
-			return true;
-		}
-		return false;
+		return System.currentTimeMillis() - time > 55000;
 	}
 
 /*
@@ -214,13 +203,10 @@ public class MySolver implements OrderingAgent {
 	}
 
 	private Double estimateHelper(State state, List<Integer> action, int depth) {
-		State nextState = simulateAction(state, action);
+		State nextState = checker(simulateAction(state, action));
 		if (Math.pow(spec.getDiscountFactor(), depth) < THRESHOLD || terminal(depth)) {
 			return (double) state.getReward();
 		} else {
-			if (state.allVisited()) {
-				// TODO: grab a random action that has already been looked at.
-			}
 			List<Integer> nextAction = nextState.peekUnvisited();
 			return (double)state.getReward() + spec.getDiscountFactor()*estimateHelper(nextState, nextAction, depth+1);
 		}
@@ -242,17 +228,25 @@ public class MySolver implements OrderingAgent {
 				penalty += (want.get(i)-newState.get(i));
 			}
 		}
-		State simulatedState = new State(nextState, allActions, spec);
+		State simulatedState = checker(new State(nextState, allActions, spec));
 		simulatedState.setReward(penalty);
 		return simulatedState;
 
 	}
 
 	private void updateValue(State state, Link action, Double q) {
-		Double newReward = (state.linkReward(action)*action.getTimesTaken()+q)/action.getTimesTaken()+1;
-		state.updateLink(action, newReward);
+		//System.out.println("Estimated reward is about to be changed from " + action.getLinkReward());
+		action.setLinkReward((action.getLinkReward() * action.getTimesTaken() + q) / (action.getTimesTaken() + 1));
+		//System.out.println("Estimated reward was changed to " + action.getLinkReward());
 		state.visit();
 		action.actionTaken();
+	}
+
+	private State checker(State state) {
+		int occurrence = states.indexOf(state);
+		if (occurrence < 0) states.add(state);
+		else return states.get(occurrence);
+		return state;
 	}
 
 }

@@ -19,7 +19,7 @@ public class Runner {
 	/** The default number of simulations to run. */
 	public static int DEFAULT_NUM_SIMULATIONS = 1;
 	/** The number of simulations to run. */
-	private static int numSimulations = 0; 
+	private static int numSimulations = 0;
 	
 	/** The default solver to use. */
 	public static String DEFAULT_SOLVER = "solver.MySolver";

@@ -13,6 +13,7 @@ public class Link {
     private State fromState;        // The State that the Link comes from
     private List<Integer> action;   // The action that the Link represents
     private int numDone;            // The number of times this Link has been explored
+    private double linkReward;
     private List<State> toStates;   // The States that the Link connects to
 
     /**
@@ -38,6 +39,7 @@ public class Link {
         }
         numDone = 0;
         toStates = new ArrayList<>();
+        linkReward = 0.0;
     }
 
     /**
@@ -69,6 +71,10 @@ public class Link {
      *          A state that this link has led to
      */
     public void addNextState(State s) { toStates.add(s); }
+
+    public void setLinkReward(double d) { linkReward = d; }
+
+    public double getLinkReward() { return linkReward; }
 
     /**
      * A method to clone the action passed in and out of it
