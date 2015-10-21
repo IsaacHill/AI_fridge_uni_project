@@ -195,14 +195,34 @@ public class State {
         return easyInt;
     }
 
-    // Part of the useless section. Useful only for greedy searching
-    // To renew, uncomment following commented out code
-    // (1 in globals, 1 in constructor and below two methods)
-    private Double calculateFailure(State state) {
-        double totalFailure = 0.0;
-        List<Integer> staterino = state.getState();
-        for (int i = 0; i < staterino.size()-1; i++) {
-            int amount = staterino.get(i);
+    public List<Integer> greedyAction() {
+        List<Integer> emptyState = new ArrayList<>();
+        for (int i = 0; i < spec.getFridge().getMaxTypes(); i++) emptyState.add(0);
+        List<Integer> currentBest = emptyState;
+        double currentBestPenalty = calculateFailure(emptyState);
+        for (List<Integer> current : unvisited) {
+            int currentPenalty = calculateFailure(current);
+            if (calculateFailure(current) < currentBestPenalty) {
+                currentBest = current;
+                currentBestPenalty = currentPenalty;
+            }
+        }
+        for (Link currentLink : actions) {
+            List<Integer> current = currentLink.getAction();
+            int currentPenalty = calculateFailure(current);
+            if (calculateFailure(current) < currentBestPenalty) {
+                currentBest = current;
+                currentBestPenalty = currentPenalty;
+            }
+        }
+        return currentBest;
+    }
+
+    private int calculateFailure(List<Integer> action) {
+        int totalFailure = 0;
+        List<Integer> state = buyShit(action);
+        for (int i = 0; i < state.size()-1; i++) {
+            int amount = state.get(i);
             List<Double> probs = spec.getProbabilities().get(i).getRow(amount);
             Double failure = 0.0;
             for (int d = probs.size()-1; d > amount; d--) {
@@ -211,6 +231,12 @@ public class State {
             totalFailure += failure;
         }
         return totalFailure;
+    }
+
+    private List<Integer> buyShit(List<Integer> action) {
+        List<Integer> pseudo = new ArrayList<>();
+        for (int i = 0; i < action.size(); i++) pseudo.add(action.get(i) + state.get(i));
+        return pseudo;
     }
 
     //public Double getTotalFailure() { return totalFail; }

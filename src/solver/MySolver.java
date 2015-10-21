@@ -23,6 +23,7 @@ public class MySolver implements OrderingAgent {
 	private Simulator mySim;
 	final private double THRESHOLD = 0.7;
 	final private int TIMEOUT = 55000;
+	final private boolean greedy = false;
 	//private double current;
 	
 	public MySolver(ProblemSpec spec) throws IOException {
@@ -179,7 +180,11 @@ public class MySolver implements OrderingAgent {
 		if (Math.pow(spec.getDiscountFactor(), depth) < THRESHOLD || terminal(depth)) {
 			return (double) state.getReward();
 		} else {
-			List<Integer> nextAction = nextState.peekUnvisited();
+			// Greedy
+			List<Integer> nextAction;
+			if (greedy) nextAction = nextState.greedyAction();
+			else nextAction = nextState.peekUnvisited();
+			// Random
 			return (double)state.getReward() + spec.getDiscountFactor()*estimate(nextState, nextAction, depth+1);
 		}
 	}
@@ -207,9 +212,7 @@ public class MySolver implements OrderingAgent {
 	}
 
 	private void updateValue(State state, Link action, Double q) {
-		//System.out.println("Estimated reward is about to be changed from " + action.getLinkReward());
 		action.setLinkReward((action.getLinkReward() * action.getTimesTaken() + q) / (action.getTimesTaken() + 1));
-		//System.out.println("Estimated reward was changed to " + action.getLinkReward());
 		state.visit();
 		action.actionTaken();
 	}
