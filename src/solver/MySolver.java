@@ -22,6 +22,7 @@ public class MySolver implements OrderingAgent {
 	private List<State> states;
 	private Simulator mySim;
 	final private double THRESHOLD = 0.7;
+	final private int TIMEOUT = 10000;
 	//private double current;
 	
 	public MySolver(ProblemSpec spec) throws IOException {
@@ -52,7 +53,6 @@ public class MySolver implements OrderingAgent {
 	        int numWeeksLeft) {
 
 		State current = checker(new State(inventory, allActions, spec));
-		System.out.println("Time for some MCST with " + current.getState().toString());
 		return MCST(current);
 
 
@@ -115,7 +115,6 @@ public class MySolver implements OrderingAgent {
 			state.addLink(newLink);
 			//newLink.actionTaken();
 			newLink.setLinkReward(estimate(state, action));
-			//System.out.println("I'm looking at estimated reward: " + newLink.getLinkReward());
 			return 0;
 		} else {
 			Link action = state.bestAction();
@@ -134,7 +133,7 @@ public class MySolver implements OrderingAgent {
 	}
 
 	private boolean outOfTime(double time) {
-		return System.currentTimeMillis() - time > 5000;
+		return System.currentTimeMillis() - time > TIMEOUT;
 	}
 
 /*
@@ -163,7 +162,6 @@ public class MySolver implements OrderingAgent {
 			initial.add(i, 0);
 		}
 		actionsHelper(allActions, 0, initial);
-		System.out.println("print stuiff" + allActions.toString());
 		return allActions;
 	}
 
