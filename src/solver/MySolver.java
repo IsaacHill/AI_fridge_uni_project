@@ -106,7 +106,7 @@ public class MySolver implements OrderingAgent {
 	private double search(State state, int depth) {
 		//TODO: make this number good as shit
 		if (Math.pow(spec.getDiscountFactor(), depth) < THRESHOLD) {
-			return -1.0;
+			return 0;
 		}
 		if (terminal(depth)) {
 			return state.getReward();
@@ -114,26 +114,28 @@ public class MySolver implements OrderingAgent {
 		if (!state.allVisited()) {
 			List<Integer> action = state.getUnvisited();
 			state.updateLink(new Link(state, action), estimate(state, action));
-			return -1.0;
+			return 0; // changed this null or something
 		} else {
 			Link action = state.bestAction();
 			State newState = simulateAction(state, action.getAction());
 			Double searched = search(newState, depth + 1);
 			Double q;
-			if (searched < 0) {
+
+			/*
+			if (searched <= 0) {
 				q = (double) state.getReward();
 			} else {
 				q = state.getReward() + spec.getDiscountFactor() * searched;
 			}
+			*/
+			q = state.getReward() + spec.getDiscountFactor() * searched;
+			System.out.println("q: " + q + " action: " + action.getAction().toString() + " reward: " + state.getActions().get(action).toString());
 			updateValue(state, action, q);
 			action.addNextState(newState);
-
-
-
-
+			return 0;
 		}
 		//dom is an idiot tho...
-		return 0;
+		//return 0;
 	}
 
 	private boolean terminal(int depth) {
@@ -141,7 +143,7 @@ public class MySolver implements OrderingAgent {
 	}
 
 	private boolean outOfTime(double time) {
-		if (System.currentTimeMillis()-time > 10000) {
+		if (System.currentTimeMillis()-time > 10) {
 			return true;
 		}
 		return false;

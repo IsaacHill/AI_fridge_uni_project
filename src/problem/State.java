@@ -42,7 +42,7 @@ public class State {
         try {
             this.state = state;
             timesVisited = 0;
-            reward = Integer.MAX_VALUE;
+            reward = 0;
             this.spec = spec;
             this.actions = new HashMap<>();
             this.unvisited = new ArrayList<>();
