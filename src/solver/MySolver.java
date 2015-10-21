@@ -105,6 +105,7 @@ public class MySolver implements OrderingAgent {
 
 	private double search(State state, int depth) {
 		//TODO: make this number good as shit
+		System.out.println("search");
 		if (Math.pow(spec.getDiscountFactor(), depth) < THRESHOLD) {
 			return 0;
 		}
@@ -129,6 +130,7 @@ public class MySolver implements OrderingAgent {
 			}
 			*/
 			q = state.getReward() + spec.getDiscountFactor() * searched;
+			System.out.println("state.getReward(): " + state.getReward());
 			System.out.println("q: " + q + " action: " + action.getAction().toString() + " reward: " + state.getActions().get(action).toString());
 			updateValue(state, action, q);
 			action.addNextState(newState);
@@ -148,24 +150,6 @@ public class MySolver implements OrderingAgent {
 		}
 		return false;
 	}
-
-/*
-	private State piUCT(State state) {
-		// page 23 of 14/10 slides
-
-		// for each action, calculate argmax
-
-		double currentMax = 0;
-		State currentMaxState = null;
-
-		for (List<Integer> action : state.createActions().keySet()) {
-			// calculate pi, update current max state
-		}
-
-		return currentMaxState;
-
-	}
-	*/
 
 	public Set<List<Integer>> createActions() {
 		Set<List<Integer>> allActions = new HashSet<>();
@@ -251,7 +235,7 @@ public class MySolver implements OrderingAgent {
 	}
 
 	private void updateValue(State state, Link action, Double q) {
-		Double newReward = (state.linkReward(action)*action.getTimesTaken()+q)/action.getTimesTaken()+1;
+		Double newReward = (state.linkReward(action)*action.getTimesTaken()+q)/(action.getTimesTaken()+1);
 		state.updateLink(action, newReward);
 		state.visit();
 		action.actionTaken();
