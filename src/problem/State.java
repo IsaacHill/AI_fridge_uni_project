@@ -15,7 +15,7 @@ public class State {
     private int timesVisited;           // The amount of times this state has been visited
     private int reward;                 // The last reward gotten from reaching this state
     private List<List<Integer>> unvisited;
-    private List<Link> actions;  // A mapping of each action that can be taken to estimate of failure
+    private List<Link> actions;         // A mapping of each action that can be taken to estimate of failure
     private ProblemSpec spec;           // The problem spec, holding all information of probability and fridge
     //private Double totalFail;
 
@@ -99,7 +99,7 @@ public class State {
             // If the action can be performed, make it into a link and add it to the list of actions
             if (actionApplies(action)) {
                 unvisited.add(action);
-                //this.actions.put(new Link(this, action), -1.0);
+                this.actions.add(new Link(this, action));
             }
         }
     }
@@ -147,6 +147,7 @@ public class State {
         return unvisited.get(random);
     }
 
+//    public List<Integer> greedy
 
     public Link bestAction() {
         Link bestLink = null;
@@ -158,22 +159,15 @@ public class State {
             double square = Math.sqrt(div);
             Double currentScore = action.getLinkReward() - C * square;
             if (bestLink == null) {
-                //System.out.println("EVERYTHING IS NULL! " + action.getTimesTaken());
                 bestLink = action;
                 bestLinkScore = currentScore;
             }
             if (currentScore < bestLinkScore) {
-                //System.out.println("Reward turned from " + bestLinkScore + " to " + currentScore);
                 bestLink = action;
                 bestLinkScore = currentScore;
-            } //else System.out.println("Figured " + bestLinkScore + " was better than " + currentScore + " with it's shitty " + action.getTimesTaken());
-            //System.out.println(action.getLinkReward() + "; ns = " + ns + "; nsa = " + nsa + "; square = " + square);
+            }
         }
         return bestLink;
-    }
-
-    public List<List<Integer>> getAllUnvisited() {
-        return unvisited;
     }
 
     private int totalItems(List<Integer> action) {
@@ -201,25 +195,24 @@ public class State {
         return easyInt;
     }
 
-    public List<Link> getActions() {
-        return actions;
-    }
-
     // Part of the useless section. Useful only for greedy searching
     // To renew, uncomment following commented out code
     // (1 in globals, 1 in constructor and below two methods)
-    /*private void calculateFailure() {
-        for (int i = 0; i < state.size()-1; i++) {
-            int amount = state.get(i);
+    private Double calculateFailure(State state) {
+        double totalFailure = 0.0;
+        List<Integer> staterino = state.getState();
+        for (int i = 0; i < staterino.size()-1; i++) {
+            int amount = staterino.get(i);
             List<Double> probs = spec.getProbabilities().get(i).getRow(amount);
             Double failure = 0.0;
             for (int d = probs.size()-1; d > amount; d--) {
                 failure += probs.get(d)*(d-amount);
             }
-            totalFail += failure;
+            totalFailure += failure;
         }
+        return totalFailure;
     }
 
-    public Double getTotalFailure() { return totalFail; }
-    */
+    //public Double getTotalFailure() { return totalFail; }
+
 }

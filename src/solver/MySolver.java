@@ -22,7 +22,7 @@ public class MySolver implements OrderingAgent {
 	private List<State> states;
 	private Simulator mySim;
 	final private double THRESHOLD = 0.7;
-	final private int TIMEOUT = 10000;
+	final private int TIMEOUT = 55000;
 	//private double current;
 	
 	public MySolver(ProblemSpec spec) throws IOException {
@@ -94,10 +94,6 @@ public class MySolver implements OrderingAgent {
 			search(state, 0);
 		}
 		// TODO: make a getter and setter - shots not (isaac)
-		System.out.println("------START------");
-		System.out.println(state.bestAction().getAction().toString());
-		System.out.println(state.bestAction().getLinkReward());
-		System.out.println("-------END-------");
 		return state.bestAction().getAction();
 	}
 
@@ -113,8 +109,7 @@ public class MySolver implements OrderingAgent {
 			List<Integer> action = state.getUnvisited();
 			Link newLink = new Link(state, action);
 			state.addLink(newLink);
-			//newLink.actionTaken();
-			newLink.setLinkReward(estimate(state, action));
+			newLink.setLinkReward(estimate(state, action, 0));
 			return 0;
 		} else {
 			Link action = state.bestAction();
@@ -135,24 +130,6 @@ public class MySolver implements OrderingAgent {
 	private boolean outOfTime(double time) {
 		return System.currentTimeMillis() - time > TIMEOUT;
 	}
-
-/*
-	private State piUCT(State state) {
-		// page 23 of 14/10 slides
-
-		// for each action, calculate argmax
-
-		double currentMax = 0;
-		State currentMaxState = null;
-
-		for (List<Integer> action : state.createActions().keySet()) {
-			// calculate pi, update current max state
-		}
-
-		return currentMaxState;
-
-	}
-	*/
 
 	public Set<List<Integer>> createActions() {
 		Set<List<Integer>> allActions = new HashSet<>();
@@ -197,17 +174,13 @@ public class MySolver implements OrderingAgent {
 		}
 	}
 
-	private double estimate(State state, List<Integer> action) {
-		return estimateHelper(state, action, 0);
-	}
-
-	private Double estimateHelper(State state, List<Integer> action, int depth) {
+	private double estimate(State state, List<Integer> action, int depth) {
 		State nextState = checker(simulateAction(state, action));
 		if (Math.pow(spec.getDiscountFactor(), depth) < THRESHOLD || terminal(depth)) {
 			return (double) state.getReward();
 		} else {
 			List<Integer> nextAction = nextState.peekUnvisited();
-			return (double)state.getReward() + spec.getDiscountFactor()*estimateHelper(nextState, nextAction, depth+1);
+			return (double)state.getReward() + spec.getDiscountFactor()*estimate(nextState, nextAction, depth+1);
 		}
 	}
 
