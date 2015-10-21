@@ -113,6 +113,7 @@ public class MySolver implements OrderingAgent {
 			List<Integer> action = state.getUnvisited();
 			Link newLink = new Link(state, action);
 			state.addLink(newLink);
+			//newLink.actionTaken();
 			newLink.setLinkReward(estimate(state, action));
 			//System.out.println("I'm looking at estimated reward: " + newLink.getLinkReward());
 			return 0;
@@ -133,7 +134,7 @@ public class MySolver implements OrderingAgent {
 	}
 
 	private boolean outOfTime(double time) {
-		return System.currentTimeMillis() - time > 55000;
+		return System.currentTimeMillis() - time > 5000;
 	}
 
 /*

@@ -152,18 +152,22 @@ public class State {
         Link bestLink = null;
         Double bestLinkScore = null;
         for (Link action : actions) {
-            //if (action.getLinkReward() > 100) continue;
-            Double currentScore = action.getLinkReward() + (C * Math.sqrt(Math.log(timesVisited))/(action.getTimesTaken()+1));
+            double ns = Math.log(timesVisited);
+            double nsa = action.getTimesTaken();
+            double div = ns/nsa;
+            double square = Math.sqrt(div);
+            Double currentScore = action.getLinkReward() - C * square;
             if (bestLink == null) {
-                System.out.println("EVERYTHING IS NULL! " + actions.size());
+                //System.out.println("EVERYTHING IS NULL! " + action.getTimesTaken());
                 bestLink = action;
                 bestLinkScore = currentScore;
             }
             if (currentScore < bestLinkScore) {
-                System.out.println("Reward turned from " + bestLinkScore + " to " + currentScore);
+                //System.out.println("Reward turned from " + bestLinkScore + " to " + currentScore);
                 bestLink = action;
                 bestLinkScore = currentScore;
-            }
+            } //else System.out.println("Figured " + bestLinkScore + " was better than " + currentScore + " with it's shitty " + action.getTimesTaken());
+            //System.out.println(action.getLinkReward() + "; ns = " + ns + "; nsa = " + nsa + "; square = " + square);
         }
         return bestLink;
     }
