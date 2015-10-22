@@ -17,7 +17,6 @@ public class State {
     private List<List<Integer>> unvisited;
     private List<Link> actions;         // A mapping of each action that can be taken to estimate of failure
     private ProblemSpec spec;           // The problem spec, holding all information of probability and fridge
-    //private Double totalFail;
 
     /**
      * Constructor method for the State class.
@@ -47,7 +46,6 @@ public class State {
             this.actions = new ArrayList<>();
             this.unvisited = new ArrayList<>();
             generateLinks(actions);
-            //totalFail = 0.0;
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("There was a mismatch with one of your classes");
         }
@@ -137,14 +135,10 @@ public class State {
     }
 
     public List<Integer> peekUnvisited() {
-        if (allVisited()) {
-            int random = (int)Math.floor(Math.random()*(double)actions.size());
-            if (random >= actions.size()) random = 0;
-            return actions.get(random).getAction();
-        }
-        int random = (int)Math.floor(Math.random()*(double)unvisited.size());
-        if (random >= unvisited.size()) random = 0;
-        return unvisited.get(random);
+        int random = (int)Math.floor(Math.random()*((double)actions.size()+(double)unvisited.size()));
+        if (random >= actions.size()+unvisited.size()) random = 0;
+        if (random >= unvisited.size()) return actions.get(random).getAction();
+        else return unvisited.get(random);
     }
 
 //    public List<Integer> greedy
@@ -157,7 +151,7 @@ public class State {
             double nsa = action.getTimesTaken();
             double div = ns/nsa;
             double square = Math.sqrt(div);
-            Double currentScore = action.getLinkReward() - C * square;
+            double currentScore = action.getLinkReward() - C * square;
             if (bestLink == null) {
                 bestLink = action;
                 bestLinkScore = currentScore;
@@ -180,8 +174,12 @@ public class State {
     public boolean equals(Object o) {
         if (o.getClass() != this.getClass()) return false;
         State compareState = (State)o;
-        for (int i = 0; i < this.getState().size(); i++) {
-            if (!Objects.equals(this.getState().get(i), compareState.getState().get(i))) return false;
+        return equals(compareState.getState());
+    }
+
+    public boolean equals(List<Integer> state) {
+        for (int i = 0; i < getState().size(); i++) {
+            if (!Objects.equals(getState().get(i), state.get(i))) return false;
         }
         return true;
     }
@@ -238,7 +236,4 @@ public class State {
         for (int i = 0; i < action.size(); i++) pseudo.add(action.get(i) + state.get(i));
         return pseudo;
     }
-
-    //public Double getTotalFailure() { return totalFail; }
-
 }

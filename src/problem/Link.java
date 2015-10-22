@@ -1,6 +1,5 @@
 package problem;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,7 +13,6 @@ public class Link {
     private List<Integer> action;   // The action that the Link represents
     private int numDone;            // The number of times this Link has been explored
     private double linkReward;
-    private List<State> toStates;   // The States that the Link connects to
 
     /**
      * Constructor method for the Link class
@@ -38,7 +36,6 @@ public class Link {
             throw new IllegalArgumentException("fromState was " + fromState.getClass() + " instead of State");
         }
         numDone = 0;
-        toStates = new ArrayList<>();
         linkReward = 0.0;
     }
 
@@ -58,19 +55,6 @@ public class Link {
      * @return the amount of times this link has been traversed
      */
     public int getTimesTaken() { return numDone; }
-
-    /**
-     * A method to return the list of states that this link has previously led to
-     * @return all states this link has previously led to
-     */
-    public List<State> getNextStates() { return toStates; }
-
-    /**
-     * A method to add another state to the list of states this link has led to
-     * @param s
-     *          A state that this link has led to
-     */
-    public void addNextState(State s) { toStates.add(s); }
 
     public void setLinkReward(double d) { linkReward = d; }
 
