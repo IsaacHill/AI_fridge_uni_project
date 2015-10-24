@@ -19,7 +19,7 @@ public class Runner {
 	/** The default number of simulations to run. */
 	public static int DEFAULT_NUM_SIMULATIONS = 1;
 	/** The number of simulations to run. */
-	private static int numSimulations = 4;
+	private static int numSimulations = 10;
 
 	/** The default solver to use. */
 	public static String DEFAULT_SOLVER = "solver.MySolver";
@@ -61,7 +61,7 @@ public class Runner {
 						simulator.getInventory(), spec.getNumWeeks() - (i+1));
 				simulator.simulateStep(shopping);
 			}
-			
+
 			totalPenalty += simulator.getTotalPenalty();
 			totalMaxPenalty += simulator.getTotalMaxPenalty();
 			System.out.println("-----------------------------------------------------------");

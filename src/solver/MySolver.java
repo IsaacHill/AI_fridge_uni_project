@@ -103,7 +103,7 @@ public class MySolver implements OrderingAgent {
 
 	private double estimate(State state, List<Integer> action, int depth) {
 		State nextState = checker(simulateAction(state, action));
-		if (Math.pow(spec.getDiscountFactor(), depth) < THRESHOLD || terminal(depth)) return (double) state.getReward();
+		if (Math.pow(spec.getDiscountFactor(), depth) < GREEDYTHRESH || terminal(depth)) return (double) state.getReward();
 		else {
 			List<Integer> nextAction;
 			if (greedy) nextAction = nextState.greedyAction();
