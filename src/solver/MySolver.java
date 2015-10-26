@@ -15,7 +15,7 @@ public class MySolver implements OrderingAgent {
 	final private double GREEDYTHRESH = 0.7;
 	final private double THRESHOLD = 0.9;
 	final private int TIMEOUT = 55000;
-	private boolean greedy = false;
+	private boolean greedy = true;
 	final private int SIMULATE_ACTION_MULTIPLE = 100;
 	//private double current;
 	
@@ -29,6 +29,7 @@ public class MySolver implements OrderingAgent {
 		weeksPassed = 0;
 		mySim = new Simulator(spec);
 		states = new ArrayList<>();
+		if (spec.getFridge().getName().equals("large")) greedy = false;
 		System.out.println("Offline time: " + (System.currentTimeMillis()-startTime));
 	}
 
@@ -111,7 +112,9 @@ public class MySolver implements OrderingAgent {
 	}
 
 	private double estimate(State state, List<Integer> action, int depth) {
+		double startTime = System.currentTimeMillis();
 		State nextState = checker(simulateAction(state, action));
+		//System.out.println("How long does making a state take? " + (System.currentTimeMillis()-startTime));
 		if (Math.pow(spec.getDiscountFactor(), depth) < GREEDYTHRESH || terminal(depth)) return (double) state.getReward();
 		else {
 			List<Integer> nextAction;
