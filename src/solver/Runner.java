@@ -8,7 +8,7 @@ import java.util.List;
 
 public class Runner {
 	/** The default file to read the user model from. */
-	public static String DEFAULT_INPUT = "testcases/small-v1.txt";
+	public static String DEFAULT_INPUT = "testcases/large1.txt";
 	/** The default file to output to. */
 	public static String DEFAULT_OUTPUT = "testcases/output.txt";
 	/** The path for the input file. */
@@ -19,7 +19,7 @@ public class Runner {
 	/** The default number of simulations to run. */
 	public static int DEFAULT_NUM_SIMULATIONS = 1;
 	/** The number of simulations to run. */
-	private static int numSimulations = 10;
+	private static int numSimulations = 0;
 
 	/** The default solver to use. */
 	public static String DEFAULT_SOLVER = "solver.MySolver";

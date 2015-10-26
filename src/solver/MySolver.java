@@ -24,10 +24,12 @@ public class MySolver implements OrderingAgent {
 	}
 
 	public void doOfflineComputation() {
+		double startTime = System.currentTimeMillis();
 		allActions = createActions();
 		weeksPassed = 0;
 		mySim = new Simulator(spec);
 		states = new ArrayList<>();
+		System.out.println("Offline time: " + (System.currentTimeMillis()-startTime));
 	}
 
 	public List<Integer> generateShoppingList(List<Integer> inventory, int numWeeksLeft) {
@@ -38,6 +40,7 @@ public class MySolver implements OrderingAgent {
 	private List<Integer> MCST(State state) {
 		double startTime = System.currentTimeMillis();
 		while (!outOfTime(startTime)) search(state, 0);
+		System.out.println("Online time: " + (System.currentTimeMillis()-startTime));
 		return state.bestAction().getAction();
 	}
 
