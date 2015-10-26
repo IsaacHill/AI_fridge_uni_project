@@ -134,11 +134,10 @@ public class State {
         return unvisitedState;
     }
 
-    public List<Integer> peekUnvisited() {
-        int random = (int)Math.floor(Math.random()*((double)actions.size()+(double)unvisited.size()));
+    public List<Integer> randomAction() {
+        int random = (int)Math.floor(Math.random()*((double)actions.size()));
         if (random >= actions.size()+unvisited.size()) random = 0;
-        if (random >= unvisited.size()) return actions.get(random).getAction();
-        else return unvisited.get(random);
+        return actions.get(random).getAction();
     }
 
 //    public List<Integer> greedy

@@ -15,7 +15,7 @@ public class MySolver implements OrderingAgent {
 	final private double GREEDYTHRESH = 0.7;
 	final private double THRESHOLD = 0.9;
 	final private int TIMEOUT = 55000;
-	final private boolean greedy = true;
+	private boolean greedy = false;
 	final private int SIMULATE_ACTION_MULTIPLE = 100;
 	//private double current;
 	
@@ -39,8 +39,12 @@ public class MySolver implements OrderingAgent {
 
 	private List<Integer> MCST(State state) {
 		double startTime = System.currentTimeMillis();
-		while (!outOfTime(startTime)) search(state, 0);
-		System.out.println("Online time: " + (System.currentTimeMillis()-startTime));
+		int i = 0;
+		while (!outOfTime(startTime)) {
+			i++;
+			search(state, 0);
+		}
+		System.out.println("Online time: " + (System.currentTimeMillis()-startTime) + " with " + i + " iterations.");
 		return state.bestAction().getAction();
 	}
 
@@ -52,10 +56,12 @@ public class MySolver implements OrderingAgent {
 			return state.getReward();
 		}
 		if (!state.allVisited()) {
+			double startTime = System.currentTimeMillis();
 			List<Integer> action = state.getUnvisited();
 			Link newLink = new Link(state, action);
 			state.addLink(newLink);
 			newLink.setLinkReward(estimate(state, action, 0));
+			System.out.println("If not all visited took " + (System.currentTimeMillis()-startTime));
 			return 0;
 		} else {
 			Link action = state.bestAction();
@@ -110,7 +116,7 @@ public class MySolver implements OrderingAgent {
 		else {
 			List<Integer> nextAction;
 			if (greedy) nextAction = nextState.greedyAction();
-			else nextAction = nextState.peekUnvisited();
+			else nextAction = nextState.randomAction();
 			return (double)state.getReward() + spec.getDiscountFactor()*estimate(nextState, nextAction, depth+1);
 		}
 	}

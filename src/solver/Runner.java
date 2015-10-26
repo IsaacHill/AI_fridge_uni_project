@@ -8,7 +8,7 @@ import java.util.List;
 
 public class Runner {
 	/** The default file to read the user model from. */
-	public static String DEFAULT_INPUT = "testcases/large1.txt";
+	public static String DEFAULT_INPUT = "testcases/large2.txt";
 	/** The default file to output to. */
 	public static String DEFAULT_OUTPUT = "testcases/output.txt";
 	/** The path for the input file. */
